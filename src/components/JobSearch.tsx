@@ -73,7 +73,11 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
     
     try {
       const requestBody: any = {
-        limit: 50
+    page: 0,
+    limit: 25,
+    job_country_code_or: ['US'],
+    posted_at_max_age_days: 7
+  
       };
       
       if (searchKeyword) requestBody.q = searchKeyword;
@@ -82,6 +86,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
       
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
+        'Accept': ''
       };
       
       // Add API key if available
