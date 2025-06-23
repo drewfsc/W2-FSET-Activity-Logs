@@ -86,7 +86,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
       
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
-        'Accept': ''
+        'Accept': '*/*'
       };
       
       // Add API key if available
