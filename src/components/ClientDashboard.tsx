@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '../contexts/TranslationContext';
 import type { User } from '../App';
+import JobSearch from './JobSearch';
 
 interface ClientDashboardProps {
   user: User;
@@ -47,6 +48,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const [selectedProgram, setSelectedProgram] = useState<'all' | 'W-2' | 'FSET'>('all');
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
   const [showW2ActivityModal, setShowW2ActivityModal] = useState(false);
+  const [savedJobs, setSavedJobs] = useState<any[]>([]);
 
   // W-2 Activity Form State
   const [w2ActivityForm, setW2ActivityForm] = useState({
@@ -170,6 +172,20 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
     setShowW2ActivityModal(true);
   };
 
+  const handleJobSave = (job: any) => {
+    const jobWithSaveDate = {
+      ...job,
+      savedDate: new Date().toISOString()
+    };
+    setSavedJobs(prev => {
+      const isAlreadySaved = prev.some(savedJob => savedJob.id === job.id);
+      if (!isAlreadySaved) {
+        return [...prev, jobWithSaveDate];
+      }
+      return prev;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -282,6 +298,30 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
                 </button>
               </div>
             </div>
+
+            {/* Saved Jobs Preview */}
+            {savedJobs.length > 0 && (
+              <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl shadow-2xl p-6 border border-gray-600">
+                <h3 className="text-xl font-bold text-white mb-4">Recently Saved Jobs</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {savedJobs.slice(0, 4).map((job) => (
+                    <div key={job.id} className="bg-gradient-to-r from-gray-700 to-gray-600 rounded-lg p-4 border border-gray-500 hover:border-blue-400 transition-all duration-200">
+                      <h4 className="font-bold text-white mb-1">{job.title}</h4>
+                      <p className="text-gray-300 text-sm mb-2">{job.company} - {job.location}</p>
+                      <p className="text-blue-400 text-sm font-medium">
+                        Saved: {new Date(job.savedDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setActiveTab('job-search')}
+                  className="mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg transform hover:scale-105"
+                >
+                  View All Saved Jobs
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -368,36 +408,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
 
         {/* Job Search Tab */}
         {activeTab === 'job-search' && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600">
-              <h2 className="text-2xl font-bold text-white mb-4">{t('client.jobsearch.title')}</h2>
-              <p className="text-gray-300 mb-6">
-                {t('client.jobsearch.description')}
-              </p>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-gray-700 to-gray-600 border border-gray-500 rounded-lg p-4 hover:border-blue-400 transition-all duration-200 transform hover:scale-105">
-                  <h3 className="font-semibold text-white mb-2">{t('client.jobsearch.activities.title')}</h3>
-                  <p className="text-sm text-gray-300 mb-4">
-                    {t('client.jobsearch.activities.description')}
-                  </p>
-                  <button className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg transform hover:scale-105">
-                    {t('client.jobsearch.activities.button')}
-                  </button>
-                </div>
-                
-                <div className="bg-gradient-to-br from-gray-700 to-gray-600 border border-gray-500 rounded-lg p-4 hover:border-green-400 transition-all duration-200 transform hover:scale-105">
-                  <h3 className="font-semibold text-white mb-2">{t('client.jobsearch.tracker.title')}</h3>
-                  <p className="text-sm text-gray-300 mb-4">
-                    {t('client.jobsearch.tracker.description')}
-                  </p>
-                  <button className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg transform hover:scale-105">
-                    {t('client.jobsearch.tracker.button')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <JobSearch onJobSave={handleJobSave} />
         )}
       </div>
 

@@ -96,8 +96,8 @@ const translations = {
     'client.activities.fset.only': 'FSET Only',
     'client.activities.new': 'New Activity',
     
-    'client.jobsearch.title': 'Job Search Resources',
-    'client.jobsearch.description': 'Access tools and resources to help you find and secure employment opportunities.',
+    'client.jobsearch.title': 'Job Search & Opportunities',
+    'client.jobsearch.description': 'Find and apply to employment opportunities that match your skills and goals. Save your favorite positions and track your applications.',
     'client.jobsearch.activities.title': 'Job Search Activities',
     'client.jobsearch.activities.description': 'Track your job applications, interviews, and networking activities.',
     'client.jobsearch.activities.button': 'Log Job Search Activity',
@@ -152,6 +152,7 @@ const translations = {
     'client.back': 'Back to Clients',
     'client.activity.history': 'Activity History',
     'client.progress.summary': 'Progress Summary',
+    'client.upcoming': 'Upcoming',
     
     // Programs and Status
     'program.w2': 'W-2',
@@ -272,8 +273,8 @@ const translations = {
     'client.activities.fset.only': 'Solo FSET',
     'client.activities.new': 'Nueva Actividad',
     
-    'client.jobsearch.title': 'Recursos de Búsqueda de Empleo',
-    'client.jobsearch.description': 'Accede a herramientas y recursos para ayudarte a encontrar y asegurar oportunidades de empleo.',
+    'client.jobsearch.title': 'Búsqueda de Empleo y Oportunidades',
+    'client.jobsearch.description': 'Encuentra y aplica a oportunidades laborales que coincidan con tus habilidades y objetivos. Guarda tus posiciones favoritas y rastrea tus aplicaciones.',
     'client.jobsearch.activities.title': 'Actividades de Búsqueda de Empleo',
     'client.jobsearch.activities.description': 'Rastrea tus aplicaciones de trabajo, entrevistas y actividades de networking.',
     'client.jobsearch.activities.button': 'Registrar Actividad de Búsqueda de Empleo',
@@ -328,6 +329,7 @@ const translations = {
     'client.back': 'Volver a Clientes',
     'client.activity.history': 'Historial de Actividades',
     'client.progress.summary': 'Resumen de Progreso',
+    'client.upcoming': 'Próximo',
     
     // Programs and Status
     'program.w2': 'W-2',
@@ -448,8 +450,8 @@ const translations = {
     'client.activities.fset.only': 'FSET Xwb',
     'client.activities.new': 'Haujlwm Tshiab',
     
-    'client.jobsearch.title': 'Cov Khoom Siv Nrhiav Haujlwm',
-    'client.jobsearch.description': 'Nkag mus rau cov cuab yeej thiab cov khoom siv los pab koj nrhiav thiab tau txais haujlwm.',
+    'client.jobsearch.title': 'Nrhiav Haujlwm thiab Cov Sij Hawm',
+    'client.jobsearch.description': 'Nrhiav thiab thov cov haujlwm uas haum koj cov txuj ci thiab lub hom phiaj. Khaws koj cov chaw nyiam thiab soj ntsuam koj cov ntawv thov.',
     'client.jobsearch.activities.title': 'Cov Haujlwm Nrhiav Haujlwm',
     'client.jobsearch.activities.description': 'Soj ntsuam koj cov ntawv thov haujlwm, kev xam phaj, thiab kev sib tham.',
     'client.jobsearch.activities.button': 'Sau Haujlwm Nrhiav Haujlwm',
@@ -504,6 +506,7 @@ const translations = {
     'client.back': 'Rov Qab Mus Rau Cov Neeg Siv Khoom',
     'client.activity.history': 'Keeb Kwm Haujlwm',
     'client.progress.summary': 'Cov Ntsiab Lus Kev Vam Meej',
+    'client.upcoming': 'Yuav Los',
     
     // Programs and Status
     'program.w2': 'W-2',
