@@ -9,7 +9,9 @@ import {
   AlertCircle,
   TrendingUp,
   Target,
-  BookOpen
+  BookOpen,
+  X,
+  Trash2
 } from 'lucide-react';
 import { useTranslation } from '../contexts/TranslationContext';
 import type { User } from '../App';
@@ -29,11 +31,39 @@ interface ActivityRecord {
   notes?: string;
 }
 
+interface ActivityAction {
+  id: string;
+  date: string;
+  time: string;
+  duration: string;
+  description: string;
+  supervisorSignature: string;
+  supervisorPhone: string;
+}
+
 const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'activities' | 'job-search'>('overview');
   const [selectedProgram, setSelectedProgram] = useState<'all' | 'W-2' | 'FSET'>('all');
   const [showNewRecordModal, setShowNewRecordModal] = useState(false);
+  const [showW2ActivityModal, setShowW2ActivityModal] = useState(false);
+
+  // W-2 Activity Form State
+  const [w2ActivityForm, setW2ActivityForm] = useState({
+    name: '',
+    goal: '',
+    actions: [
+      {
+        id: '1',
+        date: '',
+        time: '',
+        duration: '',
+        description: '',
+        supervisorSignature: '',
+        supervisorPhone: ''
+      }
+    ] as ActivityAction[]
+  });
 
   // Mock data
   const activities: ActivityRecord[] = [
@@ -78,6 +108,67 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const filteredActivities = selectedProgram === 'all' 
     ? activities 
     : activities.filter(activity => activity.program === selectedProgram);
+
+  const handleAddAction = () => {
+    const newAction: ActivityAction = {
+      id: Math.random().toString(36).substr(2, 9),
+      date: '',
+      time: '',
+      duration: '',
+      description: '',
+      supervisorSignature: '',
+      supervisorPhone: ''
+    };
+    setW2ActivityForm({
+      ...w2ActivityForm,
+      actions: [...w2ActivityForm.actions, newAction]
+    });
+  };
+
+  const handleRemoveAction = (actionId: string) => {
+    if (w2ActivityForm.actions.length > 1) {
+      setW2ActivityForm({
+        ...w2ActivityForm,
+        actions: w2ActivityForm.actions.filter(action => action.id !== actionId)
+      });
+    }
+  };
+
+  const handleActionChange = (actionId: string, field: keyof ActivityAction, value: string) => {
+    setW2ActivityForm({
+      ...w2ActivityForm,
+      actions: w2ActivityForm.actions.map(action =>
+        action.id === actionId ? { ...action, [field]: value } : action
+      )
+    });
+  };
+
+  const handleSubmitW2Activity = () => {
+    // Here you would typically submit the form data to your backend
+    console.log('Submitting W-2 Activity:', w2ActivityForm);
+    
+    // Reset form and close modal
+    setW2ActivityForm({
+      name: '',
+      goal: '',
+      actions: [
+        {
+          id: '1',
+          date: '',
+          time: '',
+          duration: '',
+          description: '',
+          supervisorSignature: '',
+          supervisorPhone: ''
+        }
+      ]
+    });
+    setShowW2ActivityModal(false);
+  };
+
+  const openW2ActivityModal = () => {
+    setShowW2ActivityModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -170,7 +261,10 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
                 <p className="mb-4 opacity-90">
                   {t('client.w2.description')}
                 </p>
-                <button className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={openW2ActivityModal}
+                  className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                >
                   {t('client.w2.add.activity')}
                 </button>
               </div>
@@ -306,6 +400,173 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
           </div>
         )}
       </div>
+
+      {/* W-2 Activity Modal */}
+      {showW2ActivityModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-96 overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">New Action Form</h2>
+                <button
+                  onClick={() => setShowW2ActivityModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Name Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    value={w2ActivityForm.name}
+                    onChange={(e) => setW2ActivityForm({...w2ActivityForm, name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Goal Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Goal
+                  </label>
+                  <input
+                    type="text"
+                    value={w2ActivityForm.goal}
+                    onChange={(e) => setW2ActivityForm({...w2ActivityForm, goal: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Actions Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Actions</h3>
+                    <button
+                      onClick={handleAddAction}
+                      className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 text-sm"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Add Action</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-6">
+                    {w2ActivityForm.actions.map((action, index) => (
+                      <div key={action.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          {/* Date Field */}
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Date</label>
+                            <input
+                              type="date"
+                              value={action.date}
+                              onChange={(e) => handleActionChange(action.id, 'date', e.target.value)}
+                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+
+                          {/* Time Field */}
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Time</label>
+                            <input
+                              type="time"
+                              value={action.time}
+                              onChange={(e) => handleActionChange(action.id, 'time', e.target.value)}
+                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+
+                          {/* Duration Field */}
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Duration</label>
+                            <input
+                              type="text"
+                              value={action.duration}
+                              onChange={(e) => handleActionChange(action.id, 'duration', e.target.value)}
+                              placeholder="--:--"
+                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          {/* Activity Description */}
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Activity Description</label>
+                            <textarea
+                              rows={3}
+                              value={action.description}
+                              onChange={(e) => handleActionChange(action.id, 'description', e.target.value)}
+                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+
+                          {/* Supervisor Signature */}
+                          <div>
+                            <label className="block text-xs text-gray-500 mb-1">Supervisor Signature</label>
+                            <textarea
+                              rows={3}
+                              value={action.supervisorSignature}
+                              onChange={(e) => handleActionChange(action.id, 'supervisorSignature', e.target.value)}
+                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Supervisor Home Phone */}
+                        <div className="mb-4">
+                          <label className="block text-xs text-gray-500 mb-1">Supervisor Home Phone</label>
+                          <input
+                            type="tel"
+                            value={action.supervisorPhone}
+                            onChange={(e) => handleActionChange(action.id, 'supervisorPhone', e.target.value)}
+                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+
+                        {/* Remove Button */}
+                        {w2ActivityForm.actions.length > 1 && (
+                          <div className="flex justify-start">
+                            <button
+                              onClick={() => handleRemoveAction(action.id)}
+                              className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors flex items-center space-x-1"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span>Remove</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Form Actions */}
+                <div className="flex justify-end space-x-3 pt-4 border-t">
+                  <button
+                    onClick={() => setShowW2ActivityModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button
+                    onClick={handleSubmitW2Activity}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    {t('common.save')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
