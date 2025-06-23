@@ -73,11 +73,12 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
     
     try {
       const requestBody: any = {
-        page: 0,
-        limit: 25,
-        job_country_code_or: ['US'],
-        posted_at_max_age_days: 7
-      };
+    page: 0,
+    limit: 25,
+    job_title_or: ['Software engineer'],
+    posted_at_max_age_days: 7,
+    company_country_code_or: ['GB']
+  };
       
       if (searchKeyword) requestBody.q = searchKeyword;
       if (location) requestBody.location = location;
