@@ -86,7 +86,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
       
       // Add API key if available
       if (apiKey && apiKey !== 'VITE_THEIRSTACK_API_KEY') {
-        headers['Authorization'] = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1eG1jY2F1bGV5QGdtYWlsLmNvbSIsInBlcm1pc3Npb25zIjoidXNlciIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTIzVDE0OjI2OjUzLjc4ODQyNSswMDowMCJ9.Lp21TDZKvfDoZHRev8snXJeiycz_xSiO-2mwhs_mGDE`;
+        headers['Authorization'] = `Bearer ${apiKey}`;
       }
       
       const response = await fetch('https://api.theirstack.com/v1/jobs/search', {
