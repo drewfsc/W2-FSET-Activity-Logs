@@ -85,7 +85,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
       };
       
       // Add API key if available
-      if (apiKey && apiKey !== 'THEIRSTACK_API_KEY') {
+      if (apiKey && apiKey !== 'VITE_THEIRSTACK_API_KEY') {
         headers['Authorization'] = `Bearer ${apiKey}`;
       }
       
