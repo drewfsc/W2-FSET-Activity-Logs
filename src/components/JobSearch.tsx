@@ -73,11 +73,10 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
     
     try {
       const requestBody: any = {
-    page: 0,
-    limit: 25,
-    job_country_code_or: ['US'],
-    posted_at_max_age_days: 7
-  
+        page: 0,
+        limit: 25,
+        job_country_code_or: ['US'],
+        posted_at_max_age_days: 7
       };
       
       if (searchKeyword) requestBody.q = searchKeyword;
@@ -95,17 +94,10 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
       }
       
       const response = await fetch('https://api.theirstack.com/v1/jobs/search', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    page: 0,
-    limit: 25,
-    job_country_code_or: ['US'],
-    posted_at_max_age_days: 7
-  })
-})
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(requestBody)
+      });
       
       if (!response.ok) {
         throw new Error(`API Error: ${response.status}`);
