@@ -72,11 +72,13 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
     setError(null);
     
     try {
-      const params = new URLSearchParams();
-      if (searchKeyword) params.append('q', searchKeyword);
-      if (location) params.append('location', location);
-      if (experienceLevel) params.append('experience_level', experienceLevel);
-      params.append('limit', '50');
+      const requestBody: any = {
+        limit: 50
+      };
+      
+      if (searchKeyword) requestBody.q = searchKeyword;
+      if (location) requestBody.location = location;
+      if (experienceLevel) requestBody.experience_level = experienceLevel;
       
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -87,8 +89,10 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
         headers['Authorization'] = `Bearer ${apiKey}`;
       }
       
-      const response = await fetch(`https://api.theirstack.com/v1/jobs/search?${params.toString()}`, {
-        headers
+      const response = await fetch('https://api.theirstack.com/v1/jobs/search', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {
