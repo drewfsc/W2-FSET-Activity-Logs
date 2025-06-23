@@ -23,7 +23,6 @@ interface Job {
   id: string;
   title: string;
   company: string;
-  location: string;
   salary_min?: number;
   salary_max?: number;
   experience_level?: string;
@@ -81,7 +80,6 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
   };
       
       if (searchKeyword) requestBody.q = searchKeyword;
-      if (location) requestBody.location = location;
       if (experienceLevel) requestBody.experience_level = experienceLevel;
       
       const headers: HeadersInit = {
@@ -675,91 +673,3 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
                               {job.job_type}
                             </span>
                           </div>
-                          
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => saveJob(job)}
-                              disabled={savedJobs.some(saved => saved.id === job.id)}
-                              className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 shadow-lg transform hover:scale-105 ${
-                                savedJobs.some(saved => saved.id === job.id)
-                                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                  : 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
-                              }`}
-                            >
-                              <Save className="h-4 w-4" />
-                              <span>{savedJobs.some(saved => saved.id === job.id) ? 'Saved' : 'Save Job'}</span>
-                            </button>
-                            {job.url && (
-                              <a
-                                href={job.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => saveJobSearchActivity({ jobId: job.id, action: 'apply_clicked' })}
-                                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center space-x-2 shadow-lg transform hover:scale-105"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                                <span>Apply</span>
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* No Results */}
-            {!loading && filteredJobs.length === 0 && !error && (
-              <div className="text-center py-12">
-                <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl shadow-2xl p-8 border border-gray-600">
-                  <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">No Jobs Found</h3>
-                  <p className="text-gray-300 mb-6">
-                    Try adjusting your search criteria or keywords to find more opportunities.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSearchKeyword('');
-                      setMinWage('');
-                      setMaxWage('');
-                      setExperienceLevel('');
-                      fetchJobs();
-                    }}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg transform hover:scale-105"
-                  >
-                    Clear Filters & Search Again
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Favorites Section */}
-            {favoriteJobs.length > 0 && (
-              <div className="mt-12">
-                <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl shadow-2xl p-6 border border-gray-600">
-                  <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-                    <Heart className="h-6 w-6 text-red-400 mr-3" />
-                    Your Favorite Jobs ({favoriteJobs.length})
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {favoriteJobs.slice(0, 4).map((job) => (
-                      <div key={job.id} className="bg-gradient-to-r from-gray-700 to-gray-600 rounded-lg p-4 border border-gray-500 hover:border-red-400 transition-all duration-200">
-                        <h4 className="font-bold text-white mb-1">{job.title}</h4>
-                        <p className="text-gray-300 text-sm mb-2">{job.company} - {job.location}</p>
-                        <p className="text-blue-400 text-sm font-medium">{formatSalary(job.salary_min, job.salary_max)}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default JobSearch;
