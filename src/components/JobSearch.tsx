@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Star, 
   MapPin, 
   DollarSign, 
-  Clock, 
   Building, 
   ExternalLink,
   Filter,
-  X,
   Heart,
   Briefcase,
   TrendingUp,
-  Users,
   Save,
-  Eye,
   Calendar
 } from 'lucide-react';
 import { useTranslation } from '../contexts/TranslationContext';
@@ -61,41 +56,60 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
   const [maxWage, setMaxWage] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
   const [location, setLocation] = useState('Wisconsin');
+  const [distance, setDistance] = useState('20');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Get API key from environment
-  const apiKey = import.meta.env.VITE_THEIRSTACK_API_KEY;
+  // Get API credentials from environment
+  const appId = import.meta.env.VITE_ADZUNA_APP_ID;
+  const appKey = import.meta.env.VITE_ADZUNA_APP_KEY;
 
-  // Fetch jobs from TheirStack API
+  // Fetch jobs from Adzuna API
   const fetchJobs = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const requestBody: any = {
-        page: 0,
-        limit: 25,
-        job_title_or: searchKeyword ? [searchKeyword] : ['Software engineer'],
-        posted_at_max_age_days: 7,
-        company_country_code_or: ['US']
-      };
+      // Convert miles to kilometers for Adzuna API (they use km)
+      const distanceInKm = parseFloat(distance) * 1.60934;
       
-      if (experienceLevel) requestBody.experience_level = experienceLevel;
+      // Build query parameters
+      const params = new URLSearchParams({
+        results_per_page: '25',
+        where: location || 'Wisconsin',
+        distance: distanceInKm.toString()
+      });
       
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'Accept': '*/*'
-      };
-      
-      // Add API key if available
-      if (apiKey && apiKey !== 'VITE_THEIRSTACK_API_KEY') {
-        headers['Authorization'] = `Bearer ${apiKey}`;
+      if (searchKeyword) {
+        params.append('what', searchKeyword);
       }
       
-      const response = await fetch('https://api.theirstack.com/v1/jobs/search', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(requestBody)
+      if (minWage) {
+        params.append('salary_min', minWage);
+      }
+      
+      if (maxWage) {
+        params.append('salary_max', maxWage);
+      }
+      
+      // Add API credentials if available and valid
+      if (appId && appKey && 
+          appId !== 'VITE_ADZUNA_APP_ID' && 
+          appKey !== 'VITE_ADZUNA_APP_KEY' && 
+          !appId.startsWith('VITE_') && 
+          !appKey.startsWith('VITE_')) {
+        params.append('app_id', appId);
+        params.append('app_key', appKey);
+      } else {
+        // Use demo credentials if real ones not available
+        params.append('app_id', 'demo_app_id');
+        params.append('app_key', 'demo_app_key');
+      }
+      
+      const response = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?${params}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
       });
       
       if (!response.ok) {
@@ -103,30 +117,59 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
       }
       
       const data = await response.json();
-      const jobsData = data.data || data.jobs || data || [];
+      const jobsData = data.results || [];
       
-      // Transform API data to our format
-      const transformedJobs: Job[] = jobsData.map((job: any, index: number) => ({
-        id: job.id || `job-${index}-${Date.now()}`,
-        title: job.title || job.position || 'Position Available',
-        company: job.company || job.company_name || 'Company Name',
-        location: job.location || job.city || location,
-        salary_min: job.salary_min || job.min_salary,
-        salary_max: job.salary_max || job.max_salary,
-        experience_level: job.experience_level || job.seniority_level,
-        job_type: job.job_type || job.employment_type || 'Full-time',
-        description: job.description || job.summary || 'Job description not available',
-        posted_date: job.posted_date || job.date_posted || new Date().toISOString(),
-        url: job.url || job.apply_url,
-        skills: job.skills || job.technologies || [],
-        source: 'theirstack'
-      }));
+      // Transform Adzuna API data to our format
+      const transformedJobs: Job[] = jobsData.map((job: unknown, index: number) => {
+        const adzunaJob = job as {
+          id?: string;
+          title?: string;
+          company?: {
+            display_name?: string;
+          };
+          location?: {
+            display_name?: string;
+          };
+          salary_min?: number;
+          salary_max?: number;
+          contract_time?: string;
+          description?: string;
+          created?: string;
+          redirect_url?: string;
+          category?: {
+            label?: string;
+          };
+        };
+        
+        return {
+          id: adzunaJob.id || `job-${index}-${Date.now()}`,
+          title: adzunaJob.title || 'Position Available',
+          company: adzunaJob.company?.display_name || 'Company Name', 
+          location: adzunaJob.location?.display_name || location || 'Wisconsin',
+          salary_min: adzunaJob.salary_min,
+          salary_max: adzunaJob.salary_max,
+          experience_level: adzunaJob.category?.label || 'Not specified',
+          job_type: adzunaJob.contract_time === 'full_time' ? 'Full-time' : 
+                   adzunaJob.contract_time === 'part_time' ? 'Part-time' : 
+                   adzunaJob.contract_time || 'Full-time',
+          description: adzunaJob.description || 'Job description not available',
+          posted_date: adzunaJob.created || new Date().toISOString(),
+          url: adzunaJob.redirect_url,
+          skills: [], // Adzuna doesn't provide skills array
+          source: 'adzuna'
+        };
+      });
       
       setJobs(transformedJobs);
       setFilteredJobs(transformedJobs);
     } catch (err) {
       console.error('Error fetching jobs:', err);
-      setError('Unable to connect to job search API. Showing sample jobs for demonstration.');
+      const errorMessage = err instanceof Error && err.message.includes('402') 
+        ? 'Adzuna API quota exceeded or payment required. Showing demo Wisconsin jobs.'
+        : err instanceof Error && err.message.includes('401')
+        ? 'Adzuna API credentials invalid. Please check your app_id and app_key. Showing demo Wisconsin jobs.'
+        : 'Unable to connect to job search API. Showing sample jobs for demonstration.';
+      setError(errorMessage);
       // Fallback to mock data for demonstration
       const mockJobs = generateMockJobs();
       setJobs(mockJobs);
@@ -253,7 +296,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
   // Load jobs on component mount
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [searchKeyword, location, distance]);
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -331,7 +374,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
   const favoriteJobs = filteredJobs.filter(job => favorites.has(job.id));
 
   // Save job search activity to potentially sync with backend later
-  const saveJobSearchActivity = async (searchData: any) => {
+  const saveJobSearchActivity = async (searchData: { jobId: string; action: string }) => {
     // This could be connected to MongoDB in the future
     const activity = {
       userId: 'current-user-id', // Would come from auth context
@@ -369,17 +412,17 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
           </div>
         </div>
 
-        {/* API Key Status */}
-        {!apiKey || apiKey === 'THEIRSTACK_API_KEY' ? (
+        {/* API Credentials Status */}
+        {!appId || !appKey || appId === 'VITE_ADZUNA_APP_ID' || appKey === 'VITE_ADZUNA_APP_KEY' || appId.startsWith('VITE_') || appKey.startsWith('VITE_') ? (
           <div className="bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-lg p-4 mb-6 border border-yellow-500">
             <p className="text-white text-sm">
-              <strong>Demo Mode:</strong> API key not configured. Showing sample Wisconsin jobs for demonstration.
+              <strong>Demo Mode:</strong> API credentials not configured. Add VITE_ADZUNA_APP_ID and VITE_ADZUNA_APP_KEY to your .env file for live data. Showing sample Wisconsin jobs for demonstration.
             </p>
           </div>
         ) : (
           <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-4 mb-6 border border-green-500">
             <p className="text-white text-sm">
-              <strong>Live Mode:</strong> Connected to TheirStack job search API.
+              <strong>Live Mode:</strong> Connected to Adzuna job search API. {error && '(Falling back to demo data due to API error)'}
             </p>
           </div>
         )}
@@ -507,7 +550,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
                 {/* Filters Panel */}
                 {showFilters && (
                   <div className="bg-gradient-to-r from-gray-750 to-gray-700 rounded-lg p-6 border border-gray-600">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">Location</label>
                         <input
@@ -517,6 +560,21 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
                           onChange={(e) => setLocation(e.target.value)}
                           className="w-full bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                         />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-300 mb-2">Distance (miles)</label>
+                        <select
+                          value={distance}
+                          onChange={(e) => setDistance(e.target.value)}
+                          className="w-full bg-gray-600 border border-gray-500 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        >
+                          <option value="5">5 miles</option>
+                          <option value="10">10 miles</option>
+                          <option value="20">20 miles</option>
+                          <option value="50">50 miles</option>
+                          <option value="100">100 miles</option>
+                        </select>
                       </div>
                       
                       <div>
@@ -578,7 +636,9 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
                   </div>
                 </div>
                 <div className="text-sm text-gray-300">
-                  {apiKey && apiKey !== 'THEIRSTACK_API_KEY' ? 'Live Data from TheirStack API' : 'Demo Data - Wisconsin Focus'}
+                  {appId && appKey && appId !== 'VITE_ADZUNA_APP_ID' && appKey !== 'VITE_ADZUNA_APP_KEY' && !appId.startsWith('VITE_') && !appKey.startsWith('VITE_') ? 
+                    (error ? 'Demo Data (API Error)' : 'Live Data from Adzuna API') : 
+                    'Demo Data - Wisconsin Focus'}
                 </div>
               </div>
             </div>
