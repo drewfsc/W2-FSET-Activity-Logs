@@ -64,7 +64,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onJobSave }) => {
   const [showFilters, setShowFilters] = useState(false);
 
   // Get API key from environment
-  const apiKey = import.env.VITE_THEIRSTACK_API_KEY;
+  const apiKey = import.meta.env.VITE_THEIRSTACK_API_KEY;
 
   // Fetch jobs from TheirStack API
   const fetchJobs = async () => {
