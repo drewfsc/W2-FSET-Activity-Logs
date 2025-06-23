@@ -16,10 +16,10 @@ const LanguageSelector: React.FC = () => {
       <select
         value={language}
         onChange={(e) => setLanguage(e.target.value as Language)}
-        className="appearance-none bg-white border border-gray-300 rounded-lg px-8 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+        className="appearance-none bg-gray-800 border border-gray-600 rounded-lg px-8 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-white hover:border-gray-500 transition-all duration-200"
       >
         {languages.map((lang) => (
-          <option key={lang.code} value={lang.code}>
+          <option key={lang.code} value={lang.code} className="bg-gray-800 text-white">
             {lang.name}
           </option>
         ))}

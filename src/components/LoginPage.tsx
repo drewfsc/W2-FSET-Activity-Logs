@@ -33,30 +33,28 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl shadow-2xl p-8 border border-gray-600">
           <div className="text-center">
             <button
               onClick={onBack}
-              className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+              className="flex items-center text-gray-300 hover:text-white mb-6 transition-all duration-200 transform hover:scale-105"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               {t('login.back')}
             </button>
             
             <div className={`mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-6 ${
-              loginType === 'client' ? 'bg-blue-100' : 'bg-green-100'
-            }`}>
-              <User className={`h-8 w-8 ${
-                loginType === 'client' ? 'text-blue-600' : 'text-green-600'
-              }`} />
+              loginType === 'client' ? 'bg-blue-600' : 'bg-green-600'
+            } shadow-lg`}>
+              <User className="h-8 w-8 text-white" />
             </div>
             
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-white mb-2">
               {loginType === 'client' ? t('login.client.title') : t('login.coach.title')}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               {loginType === 'client' 
                 ? t('login.client.description')
                 : t('login.coach.description')
@@ -67,7 +65,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   {t('login.email')}
                 </label>
                 <div className="relative">
@@ -79,14 +77,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-12 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="pl-12 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-gray-400 hover:border-gray-500"
                     placeholder={t('login.email.placeholder')}
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                   {t('login.password')}
                 </label>
                 <div className="relative">
@@ -98,7 +96,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="pl-12 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-gray-400 hover:border-gray-500"
                     placeholder={t('login.password.placeholder')}
                   />
                 </div>
@@ -111,15 +109,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 bg-gray-700 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
                   {t('login.remember')}
                 </label>
               </div>
 
               <div className="text-sm">
-                <a href="#" className="text-blue-600 hover:text-blue-500">
+                <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors">
                   {t('login.forgot')}
                 </a>
               </div>
@@ -128,10 +126,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
             <button
               type="submit"
               disabled={isLoading}
-              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all ${
+              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg ${
                 loginType === 'client'
-                  ? 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-                  : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500'
+                  : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-green-500'
               } ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
             >
               {isLoading ? (
@@ -146,7 +144,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ loginType, onLogin, onBack }) => 
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-400">
               {t('login.demo')}
             </p>
           </div>

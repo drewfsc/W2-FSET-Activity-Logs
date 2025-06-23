@@ -20,16 +20,16 @@ const Navigation: React.FC<NavigationProps> = ({
   const { t } = useTranslation();
   
   return (
-    <nav className="bg-white shadow-lg border-b-2 border-blue-600">
+    <nav className="bg-gradient-to-r from-gray-900 to-gray-800 shadow-2xl border-b-2 border-blue-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <button
               onClick={onGoToLanding}
-              className="text-blue-600 hover:text-blue-800 transition-colors"
+              className="text-white hover:text-blue-400 transition-all duration-200 transform hover:scale-105"
             >
               <div className="font-bold text-xl">{t('nav.fsc')}</div>
-              <div className="text-sm text-gray-600">{t('nav.subtitle')}</div>
+              <div className="text-sm text-gray-300">{t('nav.subtitle')}</div>
             </button>
           </div>
           
@@ -37,14 +37,14 @@ const Navigation: React.FC<NavigationProps> = ({
             <LanguageSelector />
             {currentUser ? (
               <>
-                <div className="flex items-center space-x-2 text-gray-700">
-                  <User className="h-5 w-5" />
+                <div className="flex items-center space-x-2 text-white bg-gray-800 rounded-lg px-3 py-2 border border-gray-600">
+                  <User className="h-5 w-5 text-blue-400" />
                   <span className="font-medium">{currentUser.name}</span>
-                  <span className="text-sm text-gray-500 capitalize">({currentUser.role})</span>
+                  <span className="text-sm text-gray-300 capitalize">({currentUser.role})</span>
                 </div>
                 <button
                   onClick={onLogout}
-                  className="flex items-center space-x-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center space-x-1 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>{t('nav.logout')}</span>
@@ -52,7 +52,7 @@ const Navigation: React.FC<NavigationProps> = ({
               </>
             ) : (
               currentPage === 'landing' && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300 bg-gray-800 rounded-lg px-3 py-2 border border-gray-600">
                   {t('nav.corporation')}
                 </div>
               )

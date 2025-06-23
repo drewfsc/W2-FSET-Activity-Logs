@@ -11,22 +11,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
   const { t } = useTranslation();
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             {t('landing.hero.title')}
-            <span className="text-blue-600 block">{t('landing.hero.subtitle')}</span>
+            <span className="text-blue-400 block">{t('landing.hero.subtitle')}</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
             {t('landing.hero.description')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <button
               onClick={() => onShowLogin('client')}
-              className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center space-x-2"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-2xl flex items-center space-x-2"
             >
               <Users className="h-6 w-6" />
               <span>{t('landing.hero.client.access')}</span>
@@ -34,7 +34,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
             </button>
             <button
               onClick={() => onShowLogin('coach')}
-              className="bg-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center space-x-2"
+              className="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-200 shadow-2xl flex items-center space-x-2"
             >
               <Target className="h-6 w-6" />
               <span>{t('landing.hero.coach.access')}</span>
@@ -45,40 +45,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
       </section>
 
       {/* Programs Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-r from-gray-800 to-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-white mb-4">
               {t('landing.programs.title')}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               {t('landing.programs.description')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
             {/* W-2 Program */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 border border-blue-200 hover:shadow-xl transition-all duration-300">
+            <div className="bg-gradient-to-br from-gray-700 to-gray-600 rounded-2xl p-8 border border-gray-500 hover:shadow-2xl hover:border-blue-400 transition-all duration-300 transform hover:scale-105">
               <div className="flex items-center mb-6">
-                <BookOpen className="h-12 w-12 text-blue-600 mr-4" />
-                <h3 className="text-3xl font-bold text-gray-900">{t('landing.w2.title')}</h3>
+                <BookOpen className="h-12 w-12 text-blue-400 mr-4" />
+                <h3 className="text-3xl font-bold text-white">{t('landing.w2.title')}</h3>
               </div>
               
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-gray-300 mb-6 leading-relaxed">
                 {t('landing.w2.description')}
               </p>
               
               <div className="space-y-3 mb-8">
-                <div className="flex items-center text-gray-700">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                <div className="flex items-center text-gray-300">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
                   <span>{t('landing.w2.feature1')}</span>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                <div className="flex items-center text-gray-300">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
                   <span>{t('landing.w2.feature2')}</span>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                <div className="flex items-center text-gray-300">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
                   <span>{t('landing.w2.feature3')}</span>
                 </div>
               </div>
@@ -88,7 +88,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
                   href="https://dcf.wisconsin.gov/w2/parents/w2"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   {t('landing.w2.state.info')}
@@ -97,7 +97,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
                   href="https://fsc-corp.org/program/wisconsin-works-w-2/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
+                  className="flex items-center justify-center border-2 border-blue-400 text-blue-400 px-6 py-3 rounded-lg hover:bg-blue-400 hover:text-white transition-all duration-200 transform hover:scale-105"
                 >
                   {t('landing.w2.fsc.services')}
                 </a>
@@ -105,27 +105,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
             </div>
 
             {/* FSET Program */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 border border-green-200 hover:shadow-xl transition-all duration-300">
+            <div className="bg-gradient-to-br from-gray-700 to-gray-600 rounded-2xl p-8 border border-gray-500 hover:shadow-2xl hover:border-green-400 transition-all duration-300 transform hover:scale-105">
               <div className="flex items-center mb-6">
-                <Target className="h-12 w-12 text-green-600 mr-4" />
-                <h3 className="text-3xl font-bold text-gray-900">{t('landing.fset.title')}</h3>
+                <Target className="h-12 w-12 text-green-400 mr-4" />
+                <h3 className="text-3xl font-bold text-white">{t('landing.fset.title')}</h3>
               </div>
               
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-gray-300 mb-6 leading-relaxed">
                 {t('landing.fset.description')}
               </p>
               
               <div className="space-y-3 mb-8">
-                <div className="flex items-center text-gray-700">
-                  <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                <div className="flex items-center text-gray-300">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
                   <span>{t('landing.fset.feature1')}</span>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                <div className="flex items-center text-gray-300">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
                   <span>{t('landing.fset.feature2')}</span>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                <div className="flex items-center text-gray-300">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
                   <span>{t('landing.fset.feature3')}</span>
                 </div>
               </div>
@@ -135,7 +135,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
                   href="https://www.dhs.wisconsin.gov/fset/index.htm"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                  className="flex items-center justify-center bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   {t('landing.fset.state.info')}
@@ -144,7 +144,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
                   href="https://fsc-corp.org/program/foodshare-employment-and-training-fset/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center border-2 border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-600 hover:text-white transition-colors"
+                  className="flex items-center justify-center border-2 border-green-400 text-green-400 px-6 py-3 rounded-lg hover:bg-green-400 hover:text-white transition-all duration-200 transform hover:scale-105"
                 >
                   {t('landing.fset.fsc.services')}
                 </a>
@@ -155,38 +155,38 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-white mb-4">
               {t('landing.features.title')}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               {t('landing.features.description')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <FileText className="h-16 w-16 text-blue-600 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('landing.features.tracking.title')}</h3>
-              <p className="text-gray-600">
+            <div className="text-center p-8 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border border-gray-600 hover:border-blue-400">
+              <FileText className="h-16 w-16 text-blue-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-white mb-4">{t('landing.features.tracking.title')}</h3>
+              <p className="text-gray-300">
                 {t('landing.features.tracking.description')}
               </p>
             </div>
 
-            <div className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <Search className="h-16 w-16 text-green-600 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('landing.features.jobsearch.title')}</h3>
-              <p className="text-gray-600">
+            <div className="text-center p-8 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border border-gray-600 hover:border-green-400">
+              <Search className="h-16 w-16 text-green-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-white mb-4">{t('landing.features.jobsearch.title')}</h3>
+              <p className="text-gray-300">
                 {t('landing.features.jobsearch.description')}
               </p>
             </div>
 
-            <div className="text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-              <Users className="h-16 w-16 text-purple-600 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('landing.features.coach.title')}</h3>
-              <p className="text-gray-600">
+            <div className="text-center p-8 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border border-gray-600 hover:border-purple-400">
+              <Users className="h-16 w-16 text-purple-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-white mb-4">{t('landing.features.coach.title')}</h3>
+              <p className="text-gray-300">
                 {t('landing.features.coach.description')}
               </p>
             </div>
@@ -195,7 +195,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-green-600">
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
             {t('landing.cta.title')}
@@ -207,7 +207,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onShowLogin }) => {
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button
               onClick={() => onShowLogin('client')}
-              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-2xl"
             >
               {t('landing.cta.client')}
             </button>

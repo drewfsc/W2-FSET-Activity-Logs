@@ -278,28 +278,28 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('coach.welcome')}</h1>
-          <p className="text-gray-600 mt-2">{t('nav.corporation')} - {t('coach.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-white">{t('coach.welcome')}</h1>
+          <p className="text-gray-300 mt-2">{t('nav.corporation')} - {t('coach.subtitle')}</p>
         </div>
 
         {/* Client Detail View */}
         {showClientDetail && selectedClient && (
           <div className="mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-2xl p-6 border border-gray-600">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setShowClientDetail(false)}
-                    className="flex items-center text-gray-600 hover:text-gray-800"
+                    className="flex items-center text-gray-300 hover:text-white transition-colors"
                   >
                     <ArrowLeft className="h-5 w-5 mr-2" />
                     {t('client.back')}
                   </button>
-                  <h2 className="text-2xl font-bold text-gray-900">{t('client.detail.title')}</h2>
+                  <h2 className="text-2xl font-bold text-white">{t('client.detail.title')}</h2>
                 </div>
               </div>
 
@@ -307,13 +307,13 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                 {/* Client Information */}
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4">
-                    <UserIcon className="h-12 w-12 text-gray-400 bg-gray-100 rounded-full p-2" />
+                    <UserIcon className="h-12 w-12 text-gray-400 bg-gray-600 rounded-full p-2" />
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900">{selectedClient.name}</h3>
+                      <h3 className="text-xl font-semibold text-white">{selectedClient.name}</h3>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        selectedClient.program === 'W-2' ? 'bg-blue-100 text-blue-800' :
-                        selectedClient.program === 'FSET' ? 'bg-green-100 text-green-800' :
-                        'bg-purple-100 text-purple-800'
+                        selectedClient.program === 'W-2' ? 'bg-blue-600 text-blue-100' :
+                        selectedClient.program === 'FSET' ? 'bg-green-600 text-green-100' :
+                        'bg-purple-600 text-purple-100'
                       }`}>
                         {selectedClient.program} {t('client.program')}
                       </span>
@@ -323,62 +323,62 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                   <div className="grid grid-cols-1 gap-4">
                     <div className="flex items-center space-x-3">
                       <Mail className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-700">{selectedClient.email}</span>
+                      <span className="text-gray-300">{selectedClient.email}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Phone className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-700">{selectedClient.phone}</span>
+                      <span className="text-gray-300">{selectedClient.phone}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <MapPin className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-700">{selectedClient.address}</span>
+                      <span className="text-gray-300">{selectedClient.address}</span>
                     </div>
                   </div>
 
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium text-gray-900 mb-2">{t('client.emergency.contact')}</h4>
-                    <p className="text-gray-700">{selectedClient.emergencyContact}</p>
-                    <p className="text-gray-700">{selectedClient.emergencyPhone}</p>
+                  <div className="border-t border-gray-600 pt-4">
+                    <h4 className="font-medium text-white mb-2">{t('client.emergency.contact')}</h4>
+                    <p className="text-gray-300">{selectedClient.emergencyContact}</p>
+                    <p className="text-gray-300">{selectedClient.emergencyPhone}</p>
                   </div>
 
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium text-gray-900 mb-2">{t('client.notes')}</h4>
-                    <p className="text-gray-700">{selectedClient.notes}</p>
+                  <div className="border-t border-gray-600 pt-4">
+                    <h4 className="font-medium text-white mb-2">{t('client.notes')}</h4>
+                    <p className="text-gray-300">{selectedClient.notes}</p>
                   </div>
                 </div>
 
                 {/* Progress Summary */}
                 <div className="space-y-6">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-4">{t('client.progress.summary')}</h4>
+                  <div className="bg-gradient-to-br from-gray-700 to-gray-600 rounded-lg p-4">
+                    <h4 className="font-medium text-white mb-4">{t('client.progress.summary')}</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-blue-600">{selectedClient.totalHours}</p>
-                        <p className="text-sm text-gray-600">{t('common.total.hours')}</p>
+                        <p className="text-2xl font-bold text-blue-400">{selectedClient.totalHours}</p>
+                        <p className="text-sm text-gray-300">{t('common.total.hours')}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-green-600">{selectedClient.upcomingActivities}</p>
-                        <p className="text-sm text-gray-600">{t('client.upcoming')}</p>
+                        <p className="text-2xl font-bold text-green-400">{selectedClient.upcomingActivities}</p>
+                        <p className="text-sm text-gray-300">{t('client.upcoming')}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium text-gray-900 mb-4">{t('client.activity.history')}</h4>
+                  <div className="border-t border-gray-600 pt-4">
+                    <h4 className="font-medium text-white mb-4">{t('client.activity.history')}</h4>
                     <div className="space-y-3">
                       {getClientActivities(selectedClient.id).map((activity) => (
-                        <div key={activity.id} className="border border-gray-200 rounded-lg p-3">
+                        <div key={activity.id} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-lg p-3">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-gray-900">{activity.description}</span>
+                            <span className="font-medium text-white">{activity.description}</span>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               activity.program === 'W-2' 
-                                ? 'bg-blue-100 text-blue-800' 
-                                : 'bg-green-100 text-green-800'
+                                ? 'bg-blue-600 text-blue-100' 
+                                : 'bg-green-600 text-green-100'
                             }`}>
                               {activity.program}
                             </span>
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <div className="flex items-center space-x-4 text-sm text-gray-300">
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
                               {new Date(activity.date).toLocaleDateString()}
@@ -400,8 +400,8 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
 
         {/* Tab Navigation */}
         {!showClientDetail && (
-          <div className="bg-white rounded-lg shadow-sm mb-8">
-            <div className="border-b border-gray-200">
+          <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-2xl mb-8 border border-gray-600">
+            <div className="border-b border-gray-600">
               <nav className="-mb-px flex space-x-8 px-6">
                 {[
                   { id: 'overview', label: t('dashboard.overview'), icon: TrendingUp },
@@ -412,10 +412,10 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                   <button
                     key={id}
                     onClick={() => setActiveTab(id as any)}
-                    className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
                       activeTab === id
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-green-400 text-green-400'
+                        : 'border-transparent text-gray-300 hover:text-white hover:border-gray-400'
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -432,66 +432,66 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
           <div className="space-y-8">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600 hover:border-blue-400 transition-all duration-200 transform hover:scale-105">
                 <div className="flex items-center">
-                  <Users className="h-8 w-8 text-blue-600" />
+                  <Users className="h-8 w-8 text-blue-400" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{t('coach.total.clients')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.totalClients}</p>
+                    <p className="text-sm font-medium text-gray-300">{t('coach.total.clients')}</p>
+                    <p className="text-2xl font-bold text-white">{stats.totalClients}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600 hover:border-green-400 transition-all duration-200 transform hover:scale-105">
                 <div className="flex items-center">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+                  <CheckCircle className="h-8 w-8 text-green-400" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{t('coach.active.clients')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.activeClients}</p>
+                    <p className="text-sm font-medium text-gray-300">{t('coach.active.clients')}</p>
+                    <p className="text-2xl font-bold text-white">{stats.activeClients}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600 hover:border-purple-400 transition-all duration-200 transform hover:scale-105">
                 <div className="flex items-center">
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
+                  <TrendingUp className="h-8 w-8 text-purple-400" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{t('coach.completed.month')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.completedThisMonth}</p>
+                    <p className="text-sm font-medium text-gray-300">{t('coach.completed.month')}</p>
+                    <p className="text-2xl font-bold text-white">{stats.completedThisMonth}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600 hover:border-orange-400 transition-all duration-200 transform hover:scale-105">
                 <div className="flex items-center">
-                  <Clock className="h-8 w-8 text-orange-600" />
+                  <Clock className="h-8 w-8 text-orange-400" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{t('coach.avg.hours')}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.averageHours.toFixed(1)}</p>
+                    <p className="text-sm font-medium text-gray-300">{t('coach.avg.hours')}</p>
+                    <p className="text-2xl font-bold text-white">{stats.averageHours.toFixed(1)}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('coach.recent.activity')}</h2>
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600">
+              <h2 className="text-xl font-bold text-white mb-4">{t('coach.recent.activity')}</h2>
               <div className="space-y-4">
                 {clients.slice(0, 5).map((client) => (
-                  <div key={client.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div key={client.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-lg hover:border-blue-400 transition-all duration-200">
                     <div className="flex items-center space-x-4">
                       <div className={`w-3 h-3 rounded-full ${
-                        client.status === 'active' ? 'bg-green-500' :
-                        client.status === 'inactive' ? 'bg-yellow-500' : 'bg-blue-500'
+                        client.status === 'active' ? 'bg-green-400' :
+                        client.status === 'inactive' ? 'bg-yellow-400' : 'bg-blue-400'
                       }`}></div>
                       <div>
-                        <p className="font-medium text-gray-900">{client.name}</p>
-                        <p className="text-sm text-gray-600">{client.program} {t('client.program')}</p>
+                        <p className="font-medium text-white">{client.name}</p>
+                        <p className="text-sm text-gray-300">{client.program} {t('client.program')}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">{client.totalHours} {t('common.hours')}</p>
-                      <p className="text-sm text-gray-600">{t('common.last.activity')}: {client.lastActivity ? new Date(client.lastActivity).toLocaleDateString() : 'N/A'}</p>
+                      <p className="text-sm font-medium text-white">{client.totalHours} {t('common.hours')}</p>
+                      <p className="text-sm text-gray-300">{t('common.last.activity')}: {client.lastActivity ? new Date(client.lastActivity).toLocaleDateString() : 'N/A'}</p>
                     </div>
                   </div>
                 ))}
@@ -504,7 +504,7 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
         {!showClientDetail && activeTab === 'clients' && (
           <div className="space-y-6">
             {/* Search and Controls */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 flex-1">
                   <div className="relative flex-1 max-w-md">
@@ -514,7 +514,7 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                       placeholder={t('coach.search.clients')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="pl-10 w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder-gray-400 hover:border-gray-500 transition-all duration-200"
                     />
                   </div>
                   <div className="flex items-center space-x-2">
@@ -522,7 +522,7 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                     <select
                       value={programFilter}
                       onChange={(e) => setProgramFilter(e.target.value as any)}
-                      className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                     >
                       <option value="all">{t('program.all')}</option>
                       <option value="W-2">{t('program.w2')}</option>
@@ -533,7 +533,7 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                 </div>
                 <button
                   onClick={() => setShowAddClientModal(true)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                  className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 flex items-center space-x-2 shadow-lg transform hover:scale-105"
                 >
                   <Plus className="h-4 w-4" />
                   <span>{t('coach.add.client')}</span>
@@ -542,68 +542,68 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
             </div>
 
             {/* Clients List */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg overflow-hidden border border-gray-600">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-600">
+                  <thead className="bg-gradient-to-r from-gray-700 to-gray-600">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         {t('client.name')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         {t('client.program')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         {t('client.status')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         {t('common.total.hours')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         {t('common.last.activity')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                         {t('common.actions')}
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-gradient-to-r from-gray-800 to-gray-700 divide-y divide-gray-600">
                     {filteredClients.map((client) => (
-                      <tr key={client.id} className="hover:bg-gray-50">
+                      <tr key={client.id} className="hover:bg-gray-600 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{client.name}</div>
-                            <div className="text-sm text-gray-500">{client.email}</div>
+                            <div className="text-sm font-medium text-white">{client.name}</div>
+                            <div className="text-sm text-gray-300">{client.email}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            client.program === 'W-2' ? 'bg-blue-100 text-blue-800' :
-                            client.program === 'FSET' ? 'bg-green-100 text-green-800' :
-                            'bg-purple-100 text-purple-800'
+                            client.program === 'W-2' ? 'bg-blue-600 text-blue-100' :
+                            client.program === 'FSET' ? 'bg-green-600 text-green-100' :
+                            'bg-purple-600 text-purple-100'
                           }`}>
                             {client.program}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            client.status === 'active' ? 'bg-green-100 text-green-800' :
-                            client.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-blue-100 text-blue-800'
+                            client.status === 'active' ? 'bg-green-600 text-green-100' :
+                            client.status === 'inactive' ? 'bg-yellow-600 text-yellow-100' :
+                            'bg-blue-600 text-blue-100'
                           }`}>
                             {t(`status.${client.status}`)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                           {client.totalHours} {t('common.hours')}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                           {client.lastActivity ? new Date(client.lastActivity).toLocaleDateString() : 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
                             onClick={() => viewClientDetail(client)}
-                            className="text-green-600 hover:text-green-900 flex items-center space-x-1"
+                            className="text-green-400 hover:text-green-300 flex items-center space-x-1 transition-colors"
                           >
                             <Eye className="h-4 w-4" />
                             <span>{t('client.view')}</span>
@@ -621,32 +621,32 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
         {/* Activities Tab */}
         {!showClientDetail && activeTab === 'activities' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('coach.client.activities')}</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600">
+              <h2 className="text-2xl font-bold text-white mb-4">{t('coach.client.activities')}</h2>
+              <p className="text-gray-300 mb-6">
                 {t('coach.activities.description')}
               </p>
               
               <div className="space-y-4">
                 {activities.map((activity) => (
-                  <div key={activity.id} className="border border-gray-200 rounded-lg p-6">
+                  <div key={activity.id} className="bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-500 rounded-lg p-6 hover:border-blue-400 transition-all duration-200">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             activity.program === 'W-2' 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-green-100 text-green-800'
+                              ? 'bg-blue-600 text-blue-100' 
+                              : 'bg-green-600 text-green-100'
                           }`}>
                             {activity.program}
                           </span>
-                          <span className="text-sm text-gray-500">{activity.type}</span>
-                          <span className="text-sm font-medium text-gray-700">{activity.clientName}</span>
+                          <span className="text-sm text-gray-400">{activity.type}</span>
+                          <span className="text-sm font-medium text-gray-300">{activity.clientName}</span>
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <h3 className="text-lg font-medium text-white mb-2">
                           {activity.description}
                         </h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                        <div className="flex items-center space-x-4 text-sm text-gray-300 mb-2">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1" />
                             {new Date(activity.date).toLocaleDateString()}
@@ -657,16 +657,16 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                           </div>
                         </div>
                         {activity.notes && (
-                          <p className="text-sm text-gray-600 mb-3">{activity.notes}</p>
+                          <p className="text-sm text-gray-300 mb-3">{activity.notes}</p>
                         )}
                       </div>
                       <div className="ml-4 flex items-center space-x-2">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           activity.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-green-600 text-green-100'
                             : activity.status === 'scheduled'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-yellow-600 text-yellow-100'
+                            : 'bg-red-600 text-red-100'
                         }`}>
                           {activity.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
                           {activity.status === 'scheduled' && <Clock className="h-3 w-3 mr-1" />}
@@ -675,7 +675,7 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                         </span>
                         <button
                           onClick={() => openCommentModal(activity)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 text-sm"
+                          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-1 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center space-x-1 text-sm shadow-lg transform hover:scale-105"
                         >
                           <MessageSquare className="h-4 w-4" />
                           <span>{t('coach.comment')}</span>
@@ -685,18 +685,18 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                     
                     {/* Existing Comments */}
                     {activity.coachComments.length > 0 && (
-                      <div className="mt-4 border-t pt-4">
-                        <h4 className="text-sm font-medium text-gray-900 mb-3">{t('coach.comments')}</h4>
+                      <div className="mt-4 border-t border-gray-600 pt-4">
+                        <h4 className="text-sm font-medium text-white mb-3">{t('coach.comments')}</h4>
                         <div className="space-y-3">
                           {activity.coachComments.map((comment) => (
-                            <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
+                            <div key={comment.id} className="bg-gradient-to-r from-gray-600 to-gray-500 rounded-lg p-3">
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-900">{comment.coachName}</span>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-sm font-medium text-white">{comment.coachName}</span>
+                                <span className="text-xs text-gray-300">
                                   {new Date(comment.timestamp).toLocaleDateString()} at {new Date(comment.timestamp).toLocaleTimeString()}
                                 </span>
                               </div>
-                              <p className="text-sm text-gray-700">{comment.text}</p>
+                              <p className="text-sm text-gray-200">{comment.text}</p>
                             </div>
                           ))}
                         </div>
@@ -712,59 +712,59 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
         {/* Reports Tab */}
         {!showClientDetail && activeTab === 'reports' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dashboard.reports')}</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 border border-gray-600">
+              <h2 className="text-2xl font-bold text-white mb-4">{t('dashboard.reports')}</h2>
+              <p className="text-gray-300 mb-6">
                 Generate reports and view analytics for your client caseload.
               </p>
               
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">Monthly Summary</h3>
+                <div className="bg-gradient-to-br from-gray-700 to-gray-600 border border-gray-500 rounded-lg p-6 hover:border-blue-400 transition-all duration-200">
+                  <h3 className="font-semibold text-white mb-4">Monthly Summary</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">New Enrollments:</span>
-                      <span className="font-medium">5</span>
+                      <span className="text-gray-300">New Enrollments:</span>
+                      <span className="font-medium text-white">5</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Completions:</span>
-                      <span className="font-medium">3</span>
+                      <span className="text-gray-300">Completions:</span>
+                      <span className="font-medium text-white">3</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Activities:</span>
-                      <span className="font-medium">127</span>
+                      <span className="text-gray-300">Total Activities:</span>
+                      <span className="font-medium text-white">127</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Average Hours:</span>
-                      <span className="font-medium">42.3</span>
+                      <span className="text-gray-300">Average Hours:</span>
+                      <span className="font-medium text-white">42.3</span>
                     </div>
                   </div>
-                  <button className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                  <button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg transform hover:scale-105">
                     Generate Full Report
                   </button>
                 </div>
                 
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">Program Breakdown</h3>
+                <div className="bg-gradient-to-br from-gray-700 to-gray-600 border border-gray-500 rounded-lg p-6 hover:border-green-400 transition-all duration-200">
+                  <h3 className="font-semibold text-white mb-4">Program Breakdown</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">W-2 Participants:</span>
-                      <span className="font-medium">15</span>
+                      <span className="text-gray-300">W-2 Participants:</span>
+                      <span className="font-medium text-white">15</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">FSET Participants:</span>
-                      <span className="font-medium">12</span>
+                      <span className="text-gray-300">FSET Participants:</span>
+                      <span className="font-medium text-white">12</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Both Programs:</span>
-                      <span className="font-medium">8</span>
+                      <span className="text-gray-300">Both Programs:</span>
+                      <span className="font-medium text-white">8</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Success Rate:</span>
-                      <span className="font-medium text-green-600">78%</span>
+                      <span className="text-gray-300">Success Rate:</span>
+                      <span className="font-medium text-green-400">78%</span>
                     </div>
                   </div>
-                  <button className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                  <button className="w-full mt-4 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg transform hover:scale-105">
                     Export Data
                   </button>
                 </div>
@@ -776,13 +776,13 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
 
       {/* Add Client Modal */}
       {showAddClientModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-96 overflow-y-auto">
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg max-w-2xl w-full p-6 max-h-96 overflow-y-auto border border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">{t('client.add.title')}</h3>
+              <h3 className="text-lg font-medium text-white">{t('client.add.title')}</h3>
               <button
                 onClick={() => setShowAddClientModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-white"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -790,49 +790,49 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
             
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.name')}
                 </label>
                 <input
                   type="text"
                   value={newClient.name}
                   onChange={(e) => setNewClient({...newClient, name: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.email')}
                 </label>
                 <input
                   type="email"
                   value={newClient.email}
                   onChange={(e) => setNewClient({...newClient, email: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.phone')}
                 </label>
                 <input
                   type="tel"
                   value={newClient.phone}
                   onChange={(e) => setNewClient({...newClient, phone: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.program')}
                 </label>
                 <select
                   value={newClient.program}
                   onChange={(e) => setNewClient({...newClient, program: e.target.value as any})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 >
                   <option value="W-2">{t('program.w2')}</option>
                   <option value="FSET">{t('program.fset')}</option>
@@ -841,50 +841,50 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
               </div>
               
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.address')}
                 </label>
                 <input
                   type="text"
                   value={newClient.address}
                   onChange={(e) => setNewClient({...newClient, address: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.emergency.contact')}
                 </label>
                 <input
                   type="text"
                   value={newClient.emergencyContact}
                   onChange={(e) => setNewClient({...newClient, emergencyContact: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.emergency.phone')}
                 </label>
                 <input
                   type="tel"
                   value={newClient.emergencyPhone}
                   onChange={(e) => setNewClient({...newClient, emergencyPhone: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
               
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('client.notes')}
                 </label>
                 <textarea
                   rows={3}
                   value={newClient.notes}
                   onChange={(e) => setNewClient({...newClient, notes: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent text-white hover:border-gray-500 transition-all duration-200"
                 />
               </div>
             </div>
@@ -892,14 +892,14 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={() => setShowAddClientModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={handleAddClient}
                 disabled={!newClient.name || !newClient.email}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg transform hover:scale-105"
               >
                 {t('client.save')}
               </button>
@@ -910,29 +910,29 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
 
       {/* Comment Modal */}
       {showCommentModal && selectedActivity && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6">
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg max-w-lg w-full p-6 border border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">{t('coach.add.comment')}</h3>
+              <h3 className="text-lg font-medium text-white">{t('coach.add.comment')}</h3>
               <button
                 onClick={() => setShowCommentModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-white"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
             
             <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-gray-300 mb-2">
                 <strong>{selectedActivity.clientName}</strong> - {selectedActivity.description}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-400">
                 {new Date(selectedActivity.date).toLocaleDateString()} | {selectedActivity.duration} {t('common.minutes')}
               </p>
             </div>
             
             <div className="mb-4">
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="comment" className="block text-sm font-medium text-gray-300 mb-2">
                 {t('coach.your.comment')}
               </label>
               <textarea
@@ -940,7 +940,7 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
                 rows={4}
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 hover:border-gray-500 transition-all duration-200"
                 placeholder={t('coach.comment.placeholder')}
               />
             </div>
@@ -948,14 +948,14 @@ const CoachDashboard: React.FC<CoachDashboardProps> = ({ user }) => {
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowCommentModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200"
               >
                 {t('coach.cancel')}
               </button>
               <button
                 onClick={handleAddComment}
                 disabled={!commentText.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg transform hover:scale-105"
               >
                 {t('coach.add.comment')}
               </button>
