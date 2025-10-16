@@ -43,6 +43,13 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [users, setUsers] = useState<UserListItem[]>([]);
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersLimit, setUsersLimit] = useState(25);
+  const [usersPagination, setUsersPagination] = useState({
+    total: 0,
+    totalPages: 0,
+    hasMore: false
+  });
   const [stats, setStats] = useState({
     totalHours: 0,
     weekHours: 0,
@@ -124,16 +131,30 @@ export default function Dashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch(`/api/users?page=${usersPage}&limit=${usersLimit}`);
       const data = await response.json();
 
       if (data.success) {
         setUsers(data.data);
+        if (data.pagination) {
+          setUsersPagination({
+            total: data.pagination.total,
+            totalPages: data.pagination.totalPages,
+            hasMore: data.pagination.hasMore
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching users:', error);
     }
   };
+
+  // Refetch users when page or limit changes
+  useEffect(() => {
+    if (user && (user.role === 'coach' || user.role === 'admin')) {
+      fetchUsers();
+    }
+  }, [usersPage, usersLimit]);
 
   const formatLastLogin = (lastLogin?: Date) => {
     if (!lastLogin) return 'Never';
@@ -343,6 +364,50 @@ export default function Dashboard() {
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
+                {/* Results per page */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Show:</span>
+                  <select
+                    className="select select-bordered select-sm"
+                    value={usersLimit}
+                    onChange={(e) => {
+                      setUsersLimit(Number(e.target.value));
+                      setUsersPage(1); // Reset to first page
+                    }}
+                  >
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <span className="text-sm">
+                    per page (Total: {usersPagination.total})
+                  </span>
+                </div>
+
+                {/* Page navigation */}
+                <div className="join">
+                  <button
+                    className="join-item btn btn-sm"
+                    disabled={usersPage === 1}
+                    onClick={() => setUsersPage(p => p - 1)}
+                  >
+                    «
+                  </button>
+                  <button className="join-item btn btn-sm">
+                    Page {usersPage} of {usersPagination.totalPages || 1}
+                  </button>
+                  <button
+                    className="join-item btn btn-sm"
+                    disabled={usersPage >= usersPagination.totalPages}
+                    onClick={() => setUsersPage(p => p + 1)}
+                  >
+                    »
+                  </button>
+                </div>
               </div>
             </div>
           </div>
