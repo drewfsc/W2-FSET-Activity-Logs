@@ -2,15 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Briefcase, Calendar, Clock, Filter, Plus, Search, ArrowLeft } from 'lucide-react';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'client' | 'coach';
-}
 
 interface Activity {
   _id: string;
@@ -26,7 +20,7 @@ interface Activity {
 
 export default function ActivitiesPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { data: session, status } = useSession();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,14 +29,12 @@ export default function ActivitiesPage() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (!userData) {
+    if (status === 'unauthenticated') {
       router.push('/login');
-    } else {
-      setUser(JSON.parse(userData));
+    } else if (status === 'authenticated') {
       fetchActivities();
     }
-  }, [router]);
+  }, [status, router]);
 
   const fetchActivities = async () => {
     try {
@@ -106,12 +98,16 @@ export default function ActivitiesPage() {
     return badges[status] || 'badge-neutral';
   };
 
-  if (loading || !user) {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
+  }
+
+  if (!session || !session.user) {
+    return null;
   }
 
   return (
@@ -125,7 +121,7 @@ export default function ActivitiesPage() {
           </Link>
         </div>
         <div className="flex-none">
-          <span className="mr-4">{user.name}</span>
+          <span className="mr-4">{session.user.name}</span>
         </div>
       </div>
 

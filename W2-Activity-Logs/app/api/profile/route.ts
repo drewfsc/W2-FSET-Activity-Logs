@@ -65,3 +65,89 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    // Get session
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Parse request body
+    const body = await request.json();
+
+    // Only allow updating specific fields
+    const allowedFields = ['phone', 'street', 'city', 'state', 'zip', 'homeCounty'];
+    const updateData: any = {};
+
+    for (const field of allowedFields) {
+      if (field in body) {
+        updateData[field] = body[field];
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: 'No valid fields to update' },
+        { status: 400 }
+      );
+    }
+
+    // Connect to FSC database
+    const authConnection = await authDbConnect();
+    const AuthUser = getAuthUserModel(authConnection);
+
+    // Update user
+    const updatedUser = await AuthUser.findByIdAndUpdate(
+      session.user.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Return updated user data
+    return NextResponse.json({
+      success: true,
+      data: {
+        _id: updatedUser._id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        phone: updatedUser.phone,
+        level: updatedUser.level,
+        programs: updatedUser.programs,
+        city: updatedUser.city,
+        state: updatedUser.state,
+        street: updatedUser.street,
+        zip: updatedUser.zip,
+        county: updatedUser.county,
+        homeCounty: updatedUser.homeCounty,
+        image: updatedUser.image,
+        emailVerified: updatedUser.emailVerified,
+        lastLogin: updatedUser.lastLogin,
+        timestamp: updatedUser.timestamp,
+        isYouth: updatedUser.isYouth,
+        appearance: updatedUser.appearance,
+        coach: updatedUser.coach,
+        coachUpdate: updatedUser.coachUpdate,
+      }
+    });
+
+  } catch (error) {
+    console.error('Profile update API error:', error);
+    return NextResponse.json(
+      { error: 'Failed to update profile' },
+      { status: 500 }
+    );
+  }
+}
