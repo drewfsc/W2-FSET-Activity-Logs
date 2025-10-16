@@ -39,11 +39,13 @@ export async function GET(request: NextRequest) {
     if (session.user.role === 'coach') {
       query.level = 'client';
       // Filter by coach email in the coach array
+      // Only show clients where the coach is currently assigned (no removalDate or future removalDate)
       query.coach = {
         $elemMatch: {
+          email: session.user.email,
           $or: [
-            { email: session.user.email },
-            { $eq: session.user.email } // In case coach array contains just email strings
+            { removalDate: { $exists: false } }, // No removal date means currently active
+            { removalDate: { $gt: new Date() } }  // Future removal date means still active
           ]
         }
       };
