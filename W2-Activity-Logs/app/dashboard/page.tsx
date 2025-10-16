@@ -42,6 +42,12 @@ export default function Dashboard() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated' && session?.user) {
+      // Check if user needs to complete registration
+      if (session.user.needsRegistration) {
+        router.push('/register');
+        return;
+      }
+
       setUser({
         id: session.user.id || '',
         name: session.user.name || session.user.email?.split('@')[0] || 'User',

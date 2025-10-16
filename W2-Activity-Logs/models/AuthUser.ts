@@ -20,6 +20,7 @@ export interface IAuthUser extends Document {
   appearance?: string;
   coach?: any[]; // Coach assignment history
   coachUpdate?: Date;
+  referralSource?: string; // Where the user signed up from (W2 Activity Logs, FSET Activity Logs, etc.)
 }
 
 const AuthUserSchema: Schema = new Schema(
@@ -42,8 +43,8 @@ const AuthUserSchema: Schema = new Schema(
     },
     level: {
       type: String,
-      enum: ['admin', 'participant', 'coach', 'staff'],
-      default: 'participant',
+      enum: ['admin', 'coach', 'client'],
+      default: 'client',
     },
     programs: [{
       type: String,
@@ -62,6 +63,7 @@ const AuthUserSchema: Schema = new Schema(
     appearance: String,
     coach: [Schema.Types.Mixed],
     coachUpdate: Date,
+    referralSource: String,
   },
   {
     timestamps: false, // FSC doesn't use timestamps
@@ -75,9 +77,9 @@ export function getAuthUserModel(connection: Connection): Model<IAuthUser> {
   // from pluralizing to 'authusers'. The schema specifies collection: 'users'
   const modelName = 'User';
 
-  // Check if model already exists on this connection
+  // Delete cached model to ensure schema updates are applied
   if (connection.models[modelName]) {
-    return connection.models[modelName] as Model<IAuthUser>;
+    delete connection.models[modelName];
   }
 
   // Create and return new model with explicit collection name

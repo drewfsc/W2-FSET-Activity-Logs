@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
               phone: formattedPhone,
               email: `${formattedPhone}@sms.placeholder`, // Placeholder
               name: formattedPhone,
-              level: 'participant',
+              level: 'client',
               programs: ['W-2'],
               emailVerified: new Date(),
               timestamp: new Date(),
@@ -112,7 +112,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             phoneNumber: user.phone,
-            role: user.level || 'participant',
+            role: user.level || 'client',
           };
         } catch (error) {
           console.error('SMS OTP verification error:', error);
@@ -137,7 +137,7 @@ export const authOptions: NextAuthOptions = {
           authUser = await AuthUser.create({
             email: user.email.toLowerCase(),
             name: user.name || user.email.split('@')[0],
-            level: 'participant',
+            level: 'client',
             programs: ['W-2'],
             emailVerified: new Date(),
             timestamp: new Date(),
@@ -154,9 +154,24 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
+      // Always refresh user data from database to check registration status
+      if (token.id) {
+        const authConnection = await authDbConnect();
+        const AuthUser = getAuthUserModel(authConnection);
+
+        const authUser = await AuthUser.findById(token.id);
+
+        if (authUser) {
+          token.role = authUser.level || 'client';
+          token.phoneNumber = authUser.phone;
+          // Always check current registration status
+          token.needsRegistration = !authUser.street || !authUser.city || !authUser.state || !authUser.zip;
+        }
+      }
+
       if (user) {
-        // Add custom fields to token from AUTH database
+        // Initial login - set up token from AUTH database
         const authConnection = await authDbConnect();
         const AuthUser = getAuthUserModel(authConnection);
         console.log(`[AUTH] 📊 Using collection: ${AuthUser.collection.name}`);
@@ -183,8 +198,10 @@ export const authOptions: NextAuthOptions = {
 
         if (authUser) {
           token.id = String(authUser._id);
-          token.role = authUser.level || 'participant';
+          token.role = authUser.level || 'client';
           token.phoneNumber = authUser.phone;
+          // Check if user needs to complete registration
+          token.needsRegistration = !authUser.street || !authUser.city || !authUser.state || !authUser.zip;
         }
       }
       return token;
@@ -195,6 +212,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.phoneNumber = token.phoneNumber as string;
+        session.user.needsRegistration = token.needsRegistration as boolean;
       }
       return session;
     },
@@ -203,6 +221,7 @@ export const authOptions: NextAuthOptions = {
       // If the url is a relative path, prepend baseUrl
       if (url.startsWith('/')) return `${baseUrl}${url}`;
       // If url is the baseUrl or login page, redirect to dashboard
+      // Note: Registration check happens on the dashboard page itself
       if (url === baseUrl || url === `${baseUrl}/login`) return `${baseUrl}/dashboard`;
       // Allow callback URLs on the same origin
       if (new URL(url).origin === baseUrl) return url;
