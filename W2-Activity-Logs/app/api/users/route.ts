@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/mongodb';
-import User from '@/models/User';
+import authDbConnect from '@/lib/authDb';
+import { getAuthUserModel } from '@/models/AuthUser';
 
-// GET /api/users - Get all users or filter by role
+// GET /api/users - Get all users or filter by role (level)
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
@@ -24,21 +24,34 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await dbConnect();
+    // Connect to AUTH database (FSC)
+    const authConnection = await authDbConnect();
+    const AuthUser = getAuthUserModel(authConnection);
 
     const searchParams = request.nextUrl.searchParams;
-    const role = searchParams.get('role');
+    const level = searchParams.get('level'); // Using 'level' instead of 'role' to match FSC schema
 
     let query: any = {};
-    if (role) query.role = role;
 
-    const users = await User.find(query).select('-__v').sort({ createdAt: -1 });
+    // Coaches can only see clients
+    if (session.user.role === 'coach') {
+      query.level = 'client';
+    } else if (level) {
+      // Admins can filter by level
+      query.level = level;
+    }
+
+    const users = await AuthUser.find(query)
+      .select('name email phone level lastLogin timestamp programs')
+      .sort({ lastLogin: -1 }) // Sort by most recent login
+      .lean();
 
     return NextResponse.json({
       success: true,
       data: users
     });
   } catch (error: any) {
+    console.error('[API] Error fetching users:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
@@ -67,16 +80,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await dbConnect();
+    // Connect to AUTH database (FSC)
+    const authConnection = await authDbConnect();
+    const AuthUser = getAuthUserModel(authConnection);
 
     const body = await request.json();
-    const user = await User.create(body);
+    const user = await AuthUser.create(body);
 
     return NextResponse.json(
       { success: true, data: user },
       { status: 201 }
     );
   } catch (error: any) {
+    console.error('[API] Error creating user:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 400 }

@@ -11,7 +11,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'client' | 'coach';
+  role: 'client' | 'coach' | 'admin';
 }
 
 interface Activity {
@@ -25,12 +25,24 @@ interface Activity {
   notes?: string;
 }
 
+interface UserListItem {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  level: 'client' | 'coach' | 'admin';
+  lastLogin?: Date;
+  timestamp?: Date;
+  programs?: string[];
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [users, setUsers] = useState<UserListItem[]>([]);
   const [stats, setStats] = useState({
     totalHours: 0,
     weekHours: 0,
@@ -48,13 +60,23 @@ export default function Dashboard() {
         return;
       }
 
+      const userRole = (session.user.role as 'client' | 'coach' | 'admin') || 'client';
       setUser({
         id: session.user.id || '',
         name: session.user.name || session.user.email?.split('@')[0] || 'User',
         email: session.user.email || '',
-        role: (session.user.role as 'client' | 'coach') || 'client'
+        role: userRole
       });
-      fetchActivities();
+
+      // Fetch activities for clients
+      if (userRole === 'client') {
+        fetchActivities();
+      }
+
+      // Fetch users list for coaches and admins
+      if (userRole === 'coach' || userRole === 'admin') {
+        fetchUsers();
+      }
     }
   }, [status, session, router]);
 
@@ -97,6 +119,44 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error fetching activities:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('/api/users');
+      const data = await response.json();
+
+      if (data.success) {
+        setUsers(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const formatLastLogin = (lastLogin?: Date) => {
+    if (!lastLogin) return 'Never';
+    const date = new Date(lastLogin);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getRoleBadgeClass = (level: string) => {
+    switch (level) {
+      case 'admin': return 'badge-error';
+      case 'coach': return 'badge-warning';
+      case 'client': return 'badge-info';
+      default: return 'badge-ghost';
     }
   };
 
@@ -170,54 +230,122 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-figure text-primary">
-                <Clock className="h-8 w-8" />
+        {/* Stats - Only for clients */}
+        {user.role === 'client' && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="stats shadow">
+              <div className="stat">
+                <div className="stat-figure text-primary">
+                  <Clock className="h-8 w-8" />
+                </div>
+                <div className="stat-title">Total Hours</div>
+                <div className="stat-value text-primary">{stats.totalHours}</div>
+                <div className="stat-desc">This month</div>
               </div>
-              <div className="stat-title">Total Hours</div>
-              <div className="stat-value text-primary">{stats.totalHours}</div>
-              <div className="stat-desc">This month</div>
+            </div>
+
+            <div className="stats shadow">
+              <div className="stat">
+                <div className="stat-figure text-secondary">
+                  <Calendar className="h-8 w-8" />
+                </div>
+                <div className="stat-title">This Week</div>
+                <div className="stat-value text-secondary">{stats.weekHours}</div>
+                <div className="stat-desc">Hours logged</div>
+              </div>
+            </div>
+
+            <div className="stats shadow">
+              <div className="stat">
+                <div className="stat-figure text-success">
+                  <Briefcase className="h-8 w-8" />
+                </div>
+                <div className="stat-title">Completed</div>
+                <div className="stat-value text-success">{stats.completedActivities}</div>
+                <div className="stat-desc">Activities</div>
+              </div>
+            </div>
+
+            <div className="stats shadow">
+              <div className="stat">
+                <div className="stat-figure text-info">
+                  <TrendingUp className="h-8 w-8" />
+                </div>
+                <div className="stat-title">Upcoming</div>
+                <div className="stat-value text-info">{stats.upcomingActivities}</div>
+                <div className="stat-desc">This week</div>
+              </div>
             </div>
           </div>
+        )}
 
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-figure text-secondary">
-                <Calendar className="h-8 w-8" />
+        {/* User Table for Coaches and Admins */}
+        {(user.role === 'coach' || user.role === 'admin') && (
+          <div className="card bg-base-100 shadow-xl mb-8">
+            <div className="card-body">
+              <h2 className="card-title">
+                {user.role === 'coach' ? 'My Clients' : 'All Users'}
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="table table-zebra">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Role</th>
+                      <th>Last Login</th>
+                      <th>Programs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center py-8 opacity-70">
+                          No users found
+                        </td>
+                      </tr>
+                    ) : (
+                      users.map((u) => (
+                        <tr key={u._id} className="hover">
+                          <td className="font-semibold">{u.name}</td>
+                          <td>{u.email}</td>
+                          <td>{u.phone || 'N/A'}</td>
+                          <td>
+                            <span className={`badge ${getRoleBadgeClass(u.level)}`}>
+                              {u.level}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="text-sm">
+                              {formatLastLogin(u.lastLogin)}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="flex gap-1 flex-wrap">
+                              {u.programs && u.programs.length > 0 ? (
+                                u.programs.map((program, idx) => (
+                                  <span key={idx} className="badge badge-sm badge-outline">
+                                    {program}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-sm opacity-50">None</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-              <div className="stat-title">This Week</div>
-              <div className="stat-value text-secondary">{stats.weekHours}</div>
-              <div className="stat-desc">Hours logged</div>
             </div>
           </div>
+        )}
 
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-figure text-success">
-                <Briefcase className="h-8 w-8" />
-              </div>
-              <div className="stat-title">Completed</div>
-              <div className="stat-value text-success">{stats.completedActivities}</div>
-              <div className="stat-desc">Activities</div>
-            </div>
-          </div>
-
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-figure text-info">
-                <TrendingUp className="h-8 w-8" />
-              </div>
-              <div className="stat-title">Upcoming</div>
-              <div className="stat-value text-info">{stats.upcomingActivities}</div>
-              <div className="stat-desc">This week</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Grid */}
+        {/* Main Content Grid - Only for clients */}
+        {user.role === 'client' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Activities */}
           <div className="card bg-base-100 shadow-xl">
@@ -285,11 +413,12 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        )}
 
       </div>
 
       {/* Activity Modal */}
-      {user && (
+      {user && user.role === 'client' && (
         <ActivityModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
