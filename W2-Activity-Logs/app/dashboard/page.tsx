@@ -330,8 +330,14 @@ export default function Dashboard() {
                       users.map((u) => (
                         <tr
                           key={u._id}
-                          className={user.role === 'admin' ? 'hover cursor-pointer' : 'hover'}
-                          onClick={() => user.role === 'admin' && router.push(`/users/${u._id}`)}
+                          className="hover cursor-pointer"
+                          onClick={() => {
+                            if (user.role === 'admin') {
+                              router.push(`/users/${u._id}`);
+                            } else if (user.role === 'coach') {
+                              router.push(`/clients/${u._id}`);
+                            }
+                          }}
                         >
                           <td className="font-semibold">{u.name}</td>
                           <td>{u.email}</td>

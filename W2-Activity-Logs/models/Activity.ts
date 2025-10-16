@@ -1,5 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export interface IActivityComment {
+  userId: mongoose.Types.ObjectId;
+  userName: string;
+  userRole: string;
+  comment: string;
+  timestamp: Date;
+}
+
 export interface IActivity extends Document {
   userId: mongoose.Types.ObjectId;
   activityType: 'Job Search' | 'Job Application' | 'Interview' | 'Job Training' | 'Work Hours' | 'Meeting' | 'Other';
@@ -9,6 +17,7 @@ export interface IActivity extends Document {
   status: 'Pending' | 'Completed' | 'Cancelled';
   notes?: string;
   attachments?: string[];
+  comments?: IActivityComment[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +59,29 @@ const ActivitySchema: Schema = new Schema(
     },
     attachments: [{
       type: String,
+    }],
+    comments: [{
+      userId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+      },
+      userName: {
+        type: String,
+        required: true,
+      },
+      userRole: {
+        type: String,
+        required: true,
+      },
+      comment: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
     }],
   },
   {
