@@ -36,6 +36,20 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          // Format phone number to E.164 format
+          let formattedPhone = credentials.phoneNumber.replace(/\D/g, ''); // Remove all non-digits
+
+          // If it doesn't start with country code, assume US (+1)
+          if (formattedPhone.length === 10) {
+            formattedPhone = `+1${formattedPhone}`;
+          } else if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
+            formattedPhone = `+${formattedPhone}`;
+          } else if (!formattedPhone.startsWith('+')) {
+            formattedPhone = `+${formattedPhone}`;
+          } else {
+            formattedPhone = `+${formattedPhone}`;
+          }
+
           // Verify the OTP code using Twilio Verify
           const twilio = require('twilio');
           const client = twilio(
@@ -44,9 +58,9 @@ export const authOptions: NextAuthOptions = {
           );
 
           const verificationCheck = await client.verify.v2
-            .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+            .services(process.env.TWILIO_SERVICE_SID)
             .verificationChecks.create({
-              to: credentials.phoneNumber,
+              to: formattedPhone,
               code: credentials.code,
             });
 
@@ -59,20 +73,32 @@ export const authOptions: NextAuthOptions = {
           const AuthUser = getAuthUserModel(authConnection);
           console.log(`[AUTH] 📊 Using collection: ${AuthUser.collection.name}`);
 
-          // Find or create user by phone number in AUTH database
-          let user = await AuthUser.findOne({ phone: credentials.phoneNumber });
+          // Build fuzzy phone search - try to find existing user with various phone formats
+          const cleanPhone = formattedPhone.replace(/\D/g, '');
+          let user = await AuthUser.findOne({
+            $or: [
+              { phone: formattedPhone }, // Exact match with country code (+16083998607)
+              { phone: cleanPhone }, // Without any formatting (16083998607)
+              { phone: cleanPhone.replace(/^1/, '') }, // Without leading 1 (6083998607)
+              { phone: `+${cleanPhone}` }, // With + prefix
+              { phone: `1${cleanPhone.replace(/^1/, '')}` } // With 1 prefix
+            ]
+          });
 
           if (!user) {
             // Create new user for first-time SMS login in AUTH database
             user = await AuthUser.create({
-              phone: credentials.phoneNumber,
-              email: `${credentials.phoneNumber}@sms.placeholder`, // Placeholder
-              name: credentials.phoneNumber,
+              phone: formattedPhone,
+              email: `${formattedPhone}@sms.placeholder`, // Placeholder
+              name: formattedPhone,
               level: 'participant',
               programs: ['W-2'],
               emailVerified: new Date(),
               timestamp: new Date(),
             });
+            console.log(`[AUTH] ✅ Created new user for phone ${formattedPhone}`);
+          } else {
+            console.log(`[AUTH] ✅ Found existing user with phone ${user.phone} (searched for ${formattedPhone})`);
           }
 
           // Update last login
@@ -135,10 +161,23 @@ export const authOptions: NextAuthOptions = {
         const AuthUser = getAuthUserModel(authConnection);
         console.log(`[AUTH] 📊 Using collection: ${AuthUser.collection.name}`);
 
+        // Build fuzzy phone search criteria
+        const phoneSearchCriteria = [];
+        if (user.phoneNumber) {
+          const cleanPhone = user.phoneNumber.replace(/\D/g, '');
+          phoneSearchCriteria.push(
+            { phone: user.phoneNumber }, // Exact match with country code
+            { phone: cleanPhone }, // Without country code
+            { phone: `+1${cleanPhone}` }, // With +1
+            { phone: `1${cleanPhone}` }, // With 1
+            { phone: cleanPhone.replace(/^1/, '') } // Remove leading 1
+          );
+        }
+
         const authUser = await AuthUser.findOne({
           $or: [
             { email: user.email },
-            { phone: user.phoneNumber }
+            ...phoneSearchCriteria
           ]
         });
 

@@ -12,11 +12,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate phone number format (basic validation)
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phoneNumber)) {
+    // Format phone number to E.164 format
+    let formattedPhone = phoneNumber.replace(/\D/g, ''); // Remove all non-digits
+
+    // If it doesn't start with country code, assume US (+1)
+    if (formattedPhone.length === 10) {
+      formattedPhone = `+1${formattedPhone}`;
+    } else if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
+      formattedPhone = `+${formattedPhone}`;
+    } else if (!formattedPhone.startsWith('+')) {
+      formattedPhone = `+${formattedPhone}`;
+    } else {
+      formattedPhone = `+${formattedPhone}`;
+    }
+
+    // Validate the formatted phone number
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(formattedPhone)) {
       return NextResponse.json(
-        { error: 'Invalid phone number format. Use E.164 format (e.g., +12345678900)' },
+        { error: 'Invalid phone number format' },
         { status: 400 }
       );
     }
@@ -29,9 +43,9 @@ export async function POST(request: NextRequest) {
     );
 
     const verification = await client.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .services(process.env.TWILIO_SERVICE_SID)
       .verifications.create({
-        to: phoneNumber,
+        to: formattedPhone,
         channel: 'sms', // or 'whatsapp' or 'call'
       });
 

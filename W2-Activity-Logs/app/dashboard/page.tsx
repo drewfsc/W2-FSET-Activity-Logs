@@ -142,9 +142,8 @@ export default function Dashboard() {
             <div tabIndex={0} role="button" className="btn btn-ghost">
               {user.name}
             </div>
-            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+            <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-primary text-primary-content rounded-box w-52">
               <li><Link href="/profile">Profile</Link></li>
-              <li><a>Settings</a></li>
               <li><a onClick={handleLogout}>Logout</a></li>
             </ul>
           </div>
