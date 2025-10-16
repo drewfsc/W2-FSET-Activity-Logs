@@ -32,6 +32,9 @@ export async function GET(request: NextRequest) {
     const level = searchParams.get('level');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '25');
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'lastLogin';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
 
     let query: any = {};
 
@@ -54,16 +57,28 @@ export async function GET(request: NextRequest) {
       query.level = level;
     }
 
+    // Add fuzzy search on name and email
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
     // Calculate skip for pagination
     const skip = (page - 1) * limit;
 
     // Get total count for pagination
     const total = await AuthUser.countDocuments(query);
 
-    // Fetch users with pagination
+    // Build sort object
+    const sortObj: any = {};
+    sortObj[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+    // Fetch users with pagination and sorting
     const users = await AuthUser.find(query)
       .select('name email phone level lastLogin timestamp coach')
-      .sort({ lastLogin: -1 }) // Sort by most recent login
+      .sort(sortObj)
       .skip(skip)
       .limit(limit)
       .lean();

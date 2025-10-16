@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { Briefcase, Calendar, Clock, TrendingUp } from 'lucide-react';
+import { Briefcase, Calendar, Clock, TrendingUp, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import ActivityModal, { ActivityFormData } from '@/components/ActivityModal';
 
 interface User {
@@ -45,6 +45,9 @@ export default function Dashboard() {
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [usersPage, setUsersPage] = useState(1);
   const [usersLimit, setUsersLimit] = useState(25);
+  const [usersSearch, setUsersSearch] = useState('');
+  const [usersSortBy, setUsersSortBy] = useState('name');
+  const [usersSortOrder, setUsersSortOrder] = useState<'asc' | 'desc'>('asc');
   const [usersPagination, setUsersPagination] = useState({
     total: 0,
     totalPages: 0,
@@ -131,7 +134,18 @@ export default function Dashboard() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`/api/users?page=${usersPage}&limit=${usersLimit}`);
+      const params = new URLSearchParams({
+        page: usersPage.toString(),
+        limit: usersLimit.toString(),
+        sortBy: usersSortBy,
+        sortOrder: usersSortOrder,
+      });
+
+      if (usersSearch) {
+        params.append('search', usersSearch);
+      }
+
+      const response = await fetch(`/api/users?${params.toString()}`);
       const data = await response.json();
 
       if (data.success) {
@@ -149,12 +163,12 @@ export default function Dashboard() {
     }
   };
 
-  // Refetch users when page or limit changes
+  // Refetch users when page, limit, search, or sort changes
   useEffect(() => {
     if (user && (user.role === 'coach' || user.role === 'admin')) {
       fetchUsers();
     }
-  }, [usersPage, usersLimit]);
+  }, [usersPage, usersLimit, usersSearch, usersSortBy, usersSortOrder]);
 
   const formatLastLogin = (lastLogin?: Date) => {
     if (!lastLogin) return 'Never';
@@ -179,6 +193,31 @@ export default function Dashboard() {
       case 'client': return 'badge-info';
       default: return 'badge-ghost';
     }
+  };
+
+  const handleSort = (column: string) => {
+    if (usersSortBy === column) {
+      // Toggle sort order if clicking same column
+      setUsersSortOrder(usersSortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column and default to ascending
+      setUsersSortBy(column);
+      setUsersSortOrder('asc');
+    }
+  };
+
+  const getSortIcon = (column: string) => {
+    if (usersSortBy !== column) {
+      return <ArrowUpDown className="h-4 w-4 opacity-30" />;
+    }
+    return usersSortOrder === 'asc'
+      ? <ArrowUp className="h-4 w-4" />
+      : <ArrowDown className="h-4 w-4" />;
+  };
+
+  const handleSearchChange = (value: string) => {
+    setUsersSearch(value);
+    setUsersPage(1); // Reset to first page when searching
   };
 
   const handleCreateActivity = async (activityData: ActivityFormData) => {
@@ -307,15 +346,64 @@ export default function Dashboard() {
               <h2 className="card-title">
                 {user.role === 'coach' ? 'My Clients' : 'All Users'}
               </h2>
+
+              {/* Search Input */}
+              <div className="form-control mb-4">
+                <div className="input-group">
+                  <span className="bg-base-300">
+                    <Search className="h-5 w-5" />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Search by name or email..."
+                    className="input input-bordered w-full"
+                    value={usersSearch}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                  />
+                  {usersSearch && (
+                    <button
+                      className="btn btn-square"
+                      onClick={() => handleSearchChange('')}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="table table-zebra">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Email</th>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('name')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Name
+                          {getSortIcon('name')}
+                        </div>
+                      </th>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('email')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Email
+                          {getSortIcon('email')}
+                        </div>
+                      </th>
                       <th>Phone</th>
                       <th>Role</th>
-                      <th>Last Login</th>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('lastLogin')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Last Login
+                          {getSortIcon('lastLogin')}
+                        </div>
+                      </th>
                       {user.role === 'admin' && <th>Actions</th>}
                     </tr>
                   </thead>
