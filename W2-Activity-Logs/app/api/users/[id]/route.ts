@@ -21,10 +21,10 @@ export async function GET(
       );
     }
 
-    // Only admins can view individual user details
-    if (session.user.role !== 'admin') {
+    // Clients cannot access this endpoint
+    if (session.user.role === 'client') {
       return NextResponse.json(
-        { success: false, error: 'Forbidden: Admin access required' },
+        { success: false, error: 'Forbidden: Insufficient permissions' },
         { status: 403 }
       );
     }
@@ -34,7 +34,7 @@ export async function GET(
     const AuthUser = getAuthUserModel(authConnection);
 
     const user = await AuthUser.findById(id)
-      .select('name email phone level street city state zip homeCounty county programs lastLogin timestamp')
+      .select('name email phone level street city state zip homeCounty county programs lastLogin timestamp coach')
       .lean();
 
     if (!user) {
@@ -42,6 +42,23 @@ export async function GET(
         { success: false, error: 'User not found' },
         { status: 404 }
       );
+    }
+
+    // Coaches can only view clients assigned to them
+    if (session.user.role === 'coach') {
+      // Check if this coach is assigned to this client
+      const isAssignedCoach = user.coach?.some((c: any) => {
+        const hasEmail = c.email === session.user.email;
+        const isActive = !c.removalDate || new Date(c.removalDate) > new Date();
+        return hasEmail && isActive;
+      });
+
+      if (!isAssignedCoach) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: You are not assigned to this client' },
+          { status: 403 }
+        );
+      }
     }
 
     return NextResponse.json({
