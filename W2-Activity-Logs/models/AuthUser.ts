@@ -77,9 +77,9 @@ export function getAuthUserModel(connection: Connection): Model<IAuthUser> {
   // from pluralizing to 'authusers'. The schema specifies collection: 'users'
   const modelName = 'User';
 
-  // Delete cached model to ensure schema updates are applied
+  // Check if model already exists and return it
   if (connection.models[modelName]) {
-    delete connection.models[modelName];
+    return connection.models[modelName] as Model<IAuthUser>;
   }
 
   // Create and return new model with explicit collection name
