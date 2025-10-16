@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Briefcase, Calendar, Clock, Filter, Plus, Search, ArrowLeft } from 'lucide-react';
+import { Briefcase, Calendar, Clock, Plus, Search, ArrowLeft } from 'lucide-react';
 
 interface Activity {
   _id: string;
