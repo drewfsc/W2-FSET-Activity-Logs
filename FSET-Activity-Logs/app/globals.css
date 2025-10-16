@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --theme: fset;
+}
+
+html {
+  data-theme: fset;
+}

@@ -17,7 +17,7 @@ const ActivitySchema: Schema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'AuthUser', // References user in AUTH_MONGODB (FSC database)
       required: true,
     },
     activityType: {

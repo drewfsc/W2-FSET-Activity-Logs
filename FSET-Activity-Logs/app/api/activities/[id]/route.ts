@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Activity from '@/models/Activity';
 
@@ -8,6 +10,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     const { id } = await params;
 
@@ -17,6 +28,14 @@ export async function GET(
       return NextResponse.json(
         { success: false, error: 'Activity not found' },
         { status: 404 }
+      );
+    }
+
+    // Check authorization: clients can only view their own activities
+    if (session.user.role === 'client' && activity.userId._id.toString() !== session.user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
       );
     }
 
@@ -35,8 +54,35 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     const { id } = await params;
+
+    // First, get the existing activity to check ownership
+    const existingActivity = await Activity.findById(id);
+
+    if (!existingActivity) {
+      return NextResponse.json(
+        { success: false, error: 'Activity not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check authorization: clients can only update their own activities
+    if (session.user.role === 'client' && existingActivity.userId.toString() !== session.user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
 
     const body = await request.json();
     const activity = await Activity.findByIdAndUpdate(
@@ -44,13 +90,6 @@ export async function PUT(
       body,
       { new: true, runValidators: true }
     );
-
-    if (!activity) {
-      return NextResponse.json(
-        { success: false, error: 'Activity not found' },
-        { status: 404 }
-      );
-    }
 
     return NextResponse.json({ success: true, data: activity });
   } catch (error: any) {
@@ -67,17 +106,37 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     const { id } = await params;
 
-    const activity = await Activity.findByIdAndDelete(id);
+    // First, get the existing activity to check ownership
+    const existingActivity = await Activity.findById(id);
 
-    if (!activity) {
+    if (!existingActivity) {
       return NextResponse.json(
         { success: false, error: 'Activity not found' },
         { status: 404 }
       );
     }
+
+    // Check authorization: clients can only delete their own activities
+    if (session.user.role === 'client' && existingActivity.userId.toString() !== session.user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+
+    const activity = await Activity.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true, data: {} });
   } catch (error: any) {

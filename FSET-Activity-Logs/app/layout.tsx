@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TranslationProvider } from "@/contexts/TranslationContext";
+import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
   title: "FSET Activity Logs",
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <TranslationProvider>
-          {children}
-        </TranslationProvider>
+        <SessionProvider>
+          <TranslationProvider>
+            {children}
+          </TranslationProvider>
+        </SessionProvider>
       </body>
     </html>
   );
