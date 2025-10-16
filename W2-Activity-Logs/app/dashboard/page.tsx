@@ -295,19 +295,23 @@ export default function Dashboard() {
                       <th>Phone</th>
                       <th>Role</th>
                       <th>Last Login</th>
-                      <th>Programs</th>
+                      {user.role === 'admin' && <th>Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {users.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 opacity-70">
+                        <td colSpan={user.role === 'admin' ? 6 : 5} className="text-center py-8 opacity-70">
                           No users found
                         </td>
                       </tr>
                     ) : (
                       users.map((u) => (
-                        <tr key={u._id} className="hover">
+                        <tr
+                          key={u._id}
+                          className={user.role === 'admin' ? 'hover cursor-pointer' : 'hover'}
+                          onClick={() => user.role === 'admin' && router.push(`/users/${u._id}`)}
+                        >
                           <td className="font-semibold">{u.name}</td>
                           <td>{u.email}</td>
                           <td>{u.phone || 'N/A'}</td>
@@ -321,19 +325,19 @@ export default function Dashboard() {
                               {formatLastLogin(u.lastLogin)}
                             </span>
                           </td>
-                          <td>
-                            <div className="flex gap-1 flex-wrap">
-                              {u.programs && u.programs.length > 0 ? (
-                                u.programs.map((program, idx) => (
-                                  <span key={idx} className="badge badge-sm badge-outline">
-                                    {program}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-sm opacity-50">None</span>
-                              )}
-                            </div>
-                          </td>
+                          {user.role === 'admin' && (
+                            <td>
+                              <button
+                                className="btn btn-sm btn-ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/users/${u._id}`);
+                                }}
+                              >
+                                Edit
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}

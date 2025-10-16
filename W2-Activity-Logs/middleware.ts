@@ -27,6 +27,7 @@ export const config = {
     '/profile/:path*',
     '/schedule/:path*',
     '/reports/:path*',
+    '/users/:path*',
     '/api/activities/:path*',
     '/api/users/:path*',
     '/api/profile/:path*',
