@@ -20,12 +20,22 @@ NEXTAUTH_URL=https://w2-fset-activity-logs-8cim.vercel.app
 NEXTAUTH_SECRET=your-generated-secret-here
 ```
 
-#### MongoDB Connection
+#### MongoDB Connections (IMPORTANT: Two databases required)
 ```bash
-# Your MongoDB connection string (Atlas or other cloud MongoDB)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
-MONGODB_DB=your-database-name
+# W2 Activities Database - stores activity logs
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/W2_FSET_Activity_Log
+MONGODB_DB=W2_FSET_Activity_Log
+
+# AUTH Database - stores user authentication data (FSC database)
+AUTH_MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/FSC
+AUTH_MONGODB_DB=FSC
 ```
+
+**Note:** This application uses TWO separate databases:
+- `MONGODB_URI` → for storing W2 activity logs
+- `AUTH_MONGODB_URI` → for user authentication (FSC database)
+
+Make sure both connection strings point to the correct databases!
 
 #### Email Provider (Choose One)
 
@@ -73,6 +83,19 @@ TWILIO_SERVICE_SID=VAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 1. Verify all three Twilio variables are set
 2. Ensure phone numbers are in E.164 format (+1234567890)
 3. Check Twilio console for verification service status
+
+### Issue: Activities Saving But Not Showing on Dashboard
+**Symptom:** Activities are being saved to the database but don't appear on the dashboard
+
+**Root Cause:** This app uses TWO separate databases:
+- `MONGODB_URI` → W2_FSET_Activity_Log (activities)
+- `AUTH_MONGODB_URI` → FSC (user authentication)
+
+**Solutions:**
+1. ✅ Ensure BOTH `MONGODB_URI` and `AUTH_MONGODB_URI` are set in Vercel
+2. ✅ Verify both connection strings are correct and point to the right databases
+3. ✅ Check Vercel logs for database connection errors
+4. ✅ Ensure the MongoDB Atlas cluster allows connections from Vercel (0.0.0.0/0)
 
 ## How to Generate NEXTAUTH_SECRET
 

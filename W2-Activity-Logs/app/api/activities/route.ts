@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
+import authDbConnect from '@/lib/authDb';
 import Activity from '@/models/Activity';
+import { getAuthUserModel } from '@/models/AuthUser';
 
 // GET /api/activities - Get all activities or filter by userId
 export async function GET(request: NextRequest) {
@@ -16,7 +18,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await dbConnect();
+    // Connect to both databases
+    await dbConnect(); // W2 activities database
+    const authConnection = await authDbConnect(); // FSC auth database
+    const AuthUser = getAuthUserModel(authConnection);
 
     const searchParams = request.nextUrl.searchParams;
     const userId = searchParams.get('userId');
@@ -34,16 +39,29 @@ export async function GET(request: NextRequest) {
 
     if (status) query.status = status;
 
+    // Fetch activities without populate (since it's cross-database)
     const activities = await Activity.find(query)
-      .populate('userId', 'name email')
       .sort({ date: -1 })
-      .limit(100);
+      .limit(100)
+      .lean();
+
+    // Manually populate user data from AUTH database
+    const enrichedActivities = await Promise.all(
+      activities.map(async (activity) => {
+        const user = await AuthUser.findById(activity.userId).select('name email').lean();
+        return {
+          ...activity,
+          userId: user ? { _id: activity.userId, name: user.name, email: user.email } : activity.userId
+        };
+      })
+    );
 
     return NextResponse.json({
       success: true,
-      data: activities
+      data: enrichedActivities
     });
   } catch (error: any) {
+    console.error('[API] Error fetching activities:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
