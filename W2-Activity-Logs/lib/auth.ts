@@ -2,12 +2,13 @@ import { NextAuthOptions } from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
+import type { Adapter } from 'next-auth/adapters';
 import clientPromise from '@/lib/mongodb-client';
 import authDbConnect from '@/lib/authDb';
 import { getAuthUserModel } from '@/models/AuthUser';
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise) as Adapter,
   providers: [
     // Email Magic Link Provider
     EmailProvider({
