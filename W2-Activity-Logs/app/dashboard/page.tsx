@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { LogOut, Briefcase, Calendar, Clock, TrendingUp } from 'lucide-react';
+import { Briefcase, Calendar, Clock, TrendingUp } from 'lucide-react';
 import ActivityModal, { ActivityFormData } from '@/components/ActivityModal';
 
 interface User {

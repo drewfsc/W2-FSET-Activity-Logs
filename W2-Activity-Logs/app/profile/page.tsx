@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { ArrowLeft, User, Mail, Phone, MapPin, Briefcase, Calendar, Shield, Users, Edit2, Save, X } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Shield, Users, Edit2, Save, X } from 'lucide-react';
 
 interface UserProfile {
   _id: string;
@@ -31,7 +31,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
