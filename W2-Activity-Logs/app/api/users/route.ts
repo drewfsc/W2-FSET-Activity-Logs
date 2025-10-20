@@ -38,11 +38,10 @@ export async function GET(request: NextRequest) {
 
     let query: any = {};
 
-    // Coaches can only see clients assigned to them
+    // Coaches can only see users assigned to them (regardless of level)
     if (session.user.role === 'coach') {
-      query.level = 'client';
       // Filter by coach email in the coach array
-      // Only show clients where the coach is currently assigned (no removalDate or future removalDate)
+      // Show all users (clients, coaches, etc.) where the coach is assigned
       query.coach = {
         $elemMatch: {
           email: session.user.email,
