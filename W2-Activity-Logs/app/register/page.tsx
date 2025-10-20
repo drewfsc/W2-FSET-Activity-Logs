@@ -3,12 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { ArrowLeft, User, MapPin, Save } from 'lucide-react';
+import { User, MapPin, Save } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -39,7 +38,7 @@ export default function RegisterPage() {
     setError('');
 
     // Validate required fields
-    if (!formData.name || !formData.street || !formData.city || !formData.state || !formData.zip) {
+    if (!formData.name) {
       setError('Please fill in all required fields');
       setIsLoading(false);
       return;
@@ -136,7 +135,7 @@ export default function RegisterPage() {
               {/* Street Address */}
               <div className="form-control mb-4">
                 <label className="label">
-                  <span className="label-text font-semibold">Street Address *</span>
+                  <span className="label-text font-semibold">Street Address</span>
                 </label>
                 <input
                   type="text"
@@ -144,7 +143,6 @@ export default function RegisterPage() {
                   onChange={(e) => handleInputChange('street', e.target.value)}
                   className="input input-bordered"
                   placeholder="Enter street address"
-                  required
                 />
               </div>
 
@@ -152,7 +150,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-semibold">City *</span>
+                    <span className="label-text font-semibold">City</span>
                   </label>
                   <input
                     type="text"
@@ -160,13 +158,12 @@ export default function RegisterPage() {
                     onChange={(e) => handleInputChange('city', e.target.value)}
                     className="input input-bordered"
                     placeholder="City"
-                    required
                   />
                 </div>
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-semibold">State *</span>
+                    <span className="label-text font-semibold">State</span>
                   </label>
                   <input
                     type="text"
@@ -175,13 +172,12 @@ export default function RegisterPage() {
                     className="input input-bordered"
                     placeholder="State"
                     maxLength={2}
-                    required
                   />
                 </div>
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-semibold">ZIP Code *</span>
+                    <span className="label-text font-semibold">ZIP Code</span>
                   </label>
                   <input
                     type="text"
@@ -189,7 +185,6 @@ export default function RegisterPage() {
                     onChange={(e) => handleInputChange('zip', e.target.value)}
                     className="input input-bordered"
                     placeholder="ZIP"
-                    required
                   />
                 </div>
               </div>

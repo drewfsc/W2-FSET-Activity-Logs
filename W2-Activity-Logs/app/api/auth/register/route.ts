@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const { name, street, city, state, zip, homeCounty, referralSource } = body;
 
     // Validate required fields
-    if (!name || !street || !city || !state || !zip) {
+    if (!name) {
       return NextResponse.json(
         { error: 'Missing required fields: name, street, city, state, zip' },
         { status: 400 }
