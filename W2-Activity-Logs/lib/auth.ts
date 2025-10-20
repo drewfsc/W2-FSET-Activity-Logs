@@ -166,8 +166,8 @@ export const authOptions: NextAuthOptions = {
         if (authUser) {
           token.role = authUser.level || 'client';
           token.phoneNumber = authUser.phone;
-          // Always check current registration status
-          token.needsRegistration = !authUser.street || !authUser.city || !authUser.state || !authUser.zip;
+          // No longer need registration since we collect name at login
+          token.needsRegistration = false;
         }
       }
 
@@ -201,8 +201,8 @@ export const authOptions: NextAuthOptions = {
           token.id = String(authUser._id);
           token.role = authUser.level || 'client';
           token.phoneNumber = authUser.phone;
-          // Check if user needs to complete registration
-          token.needsRegistration = !authUser.street || !authUser.city || !authUser.state || !authUser.zip;
+          // No longer need registration since we collect name at login
+          token.needsRegistration = false;
         }
       }
       return token;

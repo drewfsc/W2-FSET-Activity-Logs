@@ -78,6 +78,29 @@ export default function Dashboard() {
         role: userRole
       });
 
+      // Check for pending name from login and update if found
+      const pendingName = localStorage.getItem('pendingUserName');
+      if (pendingName) {
+        // Update the user's name in the database
+        fetch('/api/auth/update-name', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: pendingName })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Clear localStorage
+              localStorage.removeItem('pendingUserName');
+              localStorage.removeItem('pendingUserEmail');
+              localStorage.removeItem('pendingUserPhone');
+              // Update local user state
+              setUser(prev => prev ? { ...prev, name: pendingName } : null);
+            }
+          })
+          .catch(err => console.error('Error updating name:', err));
+      }
+
       // Fetch activities for clients
       if (userRole === 'client') {
         fetchActivities();
