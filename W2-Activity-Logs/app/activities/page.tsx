@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Briefcase, Calendar, Clock, Plus, Search, ArrowLeft } from 'lucide-react';
+import { Briefcase, Calendar, Clock, Plus, Search, ArrowLeft, Edit, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import ActivityModal from '@/components/ActivityModal';
 
 interface Activity {
   _id: string;
@@ -27,6 +28,10 @@ export default function ActivitiesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'activityType' | 'status' | 'duration'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -59,7 +64,8 @@ export default function ActivitiesPage() {
     if (searchTerm) {
       filtered = filtered.filter(activity =>
         activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activity.activityType.toLowerCase().includes(searchTerm.toLowerCase())
+        activity.activityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        activity.notes?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -73,8 +79,30 @@ export default function ActivitiesPage() {
       filtered = filtered.filter(activity => activity.status === filterStatus);
     }
 
+    // Sort
+    filtered.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case 'date':
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case 'activityType':
+          comparison = a.activityType.localeCompare(b.activityType);
+          break;
+        case 'status':
+          comparison = a.status.localeCompare(b.status);
+          break;
+        case 'duration':
+          comparison = (a.duration || 0) - (b.duration || 0);
+          break;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
     setFilteredActivities(filtered);
-  }, [searchTerm, filterType, filterStatus, activities]);
+  }, [searchTerm, filterType, filterStatus, activities, sortBy, sortOrder]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -96,6 +124,92 @@ export default function ActivitiesPage() {
       'Cancelled': 'badge-error'
     };
     return badges[status] || 'badge-neutral';
+  };
+
+  const handleEditClick = (activity: Activity) => {
+    setEditingActivity(activity);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = async (activityId: string) => {
+    if (!confirm('Are you sure you want to delete this activity?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/activities/${activityId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh activities list
+        fetchActivities();
+      } else {
+        alert('Failed to delete activity');
+      }
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+      alert('Failed to delete activity');
+    }
+  };
+
+  const handleSubmitActivity = async (activityData: any) => {
+    try {
+      const url = editingActivity
+        ? `/api/activities/${editingActivity._id}`
+        : '/api/activities';
+
+      const method = editingActivity ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(activityData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh activities
+        fetchActivities();
+        setIsModalOpen(false);
+        setEditingActivity(null);
+      } else {
+        throw new Error(data.error || 'Failed to save activity');
+      }
+    } catch (error) {
+      console.error('Error saving activity:', error);
+      throw error;
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingActivity(null);
+  };
+
+  const handleSort = (column: 'date' | 'activityType' | 'status' | 'duration') => {
+    if (sortBy === column) {
+      // Toggle sort order if clicking same column
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column and default to descending
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
+
+  const getSortIcon = (column: string) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="h-4 w-4 opacity-30" />;
+    }
+    return sortOrder === 'asc'
+      ? <ArrowUp className="h-4 w-4" />
+      : <ArrowDown className="h-4 w-4" />;
   };
 
   if (status === 'loading' || loading) {
@@ -142,17 +256,15 @@ export default function ActivitiesPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Search */}
               <div className="form-control md:col-span-2">
-                <div className="input-group">
-                  <span>
-                    <Search className="h-5 w-5" />
-                  </span>
+                <div className="relative">
                   <input
                     type="text"
                     placeholder="Search activities..."
-                    className="input input-bordered w-full"
+                    className="input input-bordered w-full pr-10"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                  <Search className="h-5 w-5 absolute right-3 top-1/2 -translate-y-1/2 opacity-50" />
                 </div>
               </div>
 
@@ -196,77 +308,153 @@ export default function ActivitiesPage() {
           </div>
         </div>
 
-        {/* Activities List */}
-        {filteredActivities.length === 0 ? (
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body text-center py-12">
-              <Briefcase className="h-16 w-16 mx-auto opacity-30 mb-4" />
-              <h3 className="text-xl font-bold mb-2">No activities found</h3>
-              <p className="opacity-70 mb-4">
-                {activities.length === 0
-                  ? "You haven't logged any activities yet."
-                  : "Try adjusting your filters to see more results."}
-              </p>
-              <div>
-                <Link href="/dashboard" className="btn btn-primary">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Log New Activity
-                </Link>
+        {/* Activities Table */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            {filteredActivities.length === 0 ? (
+              <div className="text-center py-12">
+                <Briefcase className="h-16 w-16 mx-auto opacity-30 mb-4" />
+                <h3 className="text-xl font-bold mb-2">No activities found</h3>
+                <p className="opacity-70 mb-4">
+                  {activities.length === 0
+                    ? "You haven't logged any activities yet."
+                    : "Try adjusting your filters to see more results."}
+                </p>
+                <div>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="btn btn-primary"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Log New Activity
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredActivities.map((activity) => (
-              <div key={activity._id} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
-                <div className="card-body">
-                  <div className="flex justify-between items-start">
-                    <div className="flex gap-4 flex-1">
-                      <div className="avatar placeholder">
-                        <div className="bg-primary text-primary-content rounded-full w-12 h-12">
-                          {getActivityIcon(activity.activityType)}
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="table table-zebra">
+                  <thead>
+                    <tr>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('date')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Date
+                          {getSortIcon('date')}
                         </div>
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-xl font-bold">{activity.activityType}</h3>
+                      </th>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('activityType')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Activity Type
+                          {getSortIcon('activityType')}
+                        </div>
+                      </th>
+                      <th>Description</th>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('duration')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Duration
+                          {getSortIcon('duration')}
+                        </div>
+                      </th>
+                      <th
+                        className="cursor-pointer hover:bg-base-300 select-none"
+                        onClick={() => handleSort('status')}
+                      >
+                        <div className="flex items-center gap-2">
+                          Status
+                          {getSortIcon('status')}
+                        </div>
+                      </th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredActivities.map((activity) => (
+                      <tr key={activity._id} className="hover">
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 opacity-50" />
+                            {new Date(activity.date).toLocaleDateString()}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            {getActivityIcon(activity.activityType)}
+                            <span className="font-medium">{activity.activityType}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div>
+                            <div className="font-medium">{activity.description}</div>
+                            {activity.notes && (
+                              <div className="text-sm opacity-70 mt-1">
+                                {activity.notes.length > 100
+                                  ? `${activity.notes.substring(0, 100)}...`
+                                  : activity.notes}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          {activity.duration ? (
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4 opacity-50" />
+                              {activity.duration} hrs
+                            </div>
+                          ) : (
+                            <span className="opacity-50">-</span>
+                          )}
+                        </td>
+                        <td>
                           <span className={`badge ${getStatusBadge(activity.status)}`}>
                             {activity.status}
                           </span>
-                        </div>
-
-                        <p className="text-base-content opacity-80 mb-2">
-                          {activity.description}
-                        </p>
-
-                        <div className="flex gap-4 text-sm opacity-70">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {new Date(activity.date).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditClick(activity)}
+                              className="btn btn-xs btn-outline btn-primary"
+                              title="Edit activity"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(activity._id)}
+                              className="btn btn-xs btn-outline btn-error"
+                              title="Delete activity"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
                           </div>
-                          {activity.duration && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {activity.duration} hours
-                            </div>
-                          )}
-                        </div>
-
-                        {activity.notes && (
-                          <div className="mt-3 p-3 bg-base-200 rounded-lg">
-                            <p className="text-sm"><strong>Notes:</strong> {activity.notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Activity Modal */}
+      {session && session.user && (
+        <ActivityModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSubmit={handleSubmitActivity}
+          userId={session.user.id || ''}
+          editActivity={editingActivity}
+        />
+      )}
     </div>
   );
 }

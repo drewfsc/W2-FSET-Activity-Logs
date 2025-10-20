@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ActivityModalProps {
@@ -8,9 +8,21 @@ interface ActivityModalProps {
   onClose: () => void;
   onSubmit: (activity: ActivityFormData) => Promise<void>;
   userId: string;
+  editActivity?: Activity | null;
 }
 
 export interface ActivityFormData {
+  userId: string;
+  activityType: string;
+  description: string;
+  date: string;
+  duration?: number;
+  status: string;
+  notes?: string;
+}
+
+interface Activity {
+  _id: string;
   userId: string;
   activityType: string;
   description: string;
@@ -32,17 +44,42 @@ const activityTypes = [
 
 const statusOptions = ['Pending', 'Completed', 'Cancelled'];
 
-export default function ActivityModal({ isOpen, onClose, onSubmit, userId }: ActivityModalProps) {
+export default function ActivityModal({ isOpen, onClose, onSubmit, userId, editActivity }: ActivityModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ActivityFormData>({
     userId,
-    activityType: 'Job Search',
-    description: '',
-    date: new Date().toISOString().split('T')[0],
-    duration: undefined,
-    status: 'Completed',
-    notes: ''
+    activityType: editActivity?.activityType || 'Job Search',
+    description: editActivity?.description || '',
+    date: editActivity?.date ? new Date(editActivity.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    duration: editActivity?.duration,
+    status: editActivity?.status || 'Completed',
+    notes: editActivity?.notes || ''
   });
+
+  // Update form data when editActivity changes
+  useEffect(() => {
+    if (editActivity) {
+      setFormData({
+        userId,
+        activityType: editActivity.activityType,
+        description: editActivity.description,
+        date: new Date(editActivity.date).toISOString().split('T')[0],
+        duration: editActivity.duration,
+        status: editActivity.status,
+        notes: editActivity.notes || ''
+      });
+    } else {
+      setFormData({
+        userId,
+        activityType: 'Job Search',
+        description: '',
+        date: new Date().toISOString().split('T')[0],
+        duration: undefined,
+        status: 'Completed',
+        notes: ''
+      });
+    }
+  }, [editActivity, userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +99,7 @@ export default function ActivityModal({ isOpen, onClose, onSubmit, userId }: Act
       onClose();
     } catch (error) {
       console.error('Error submitting activity:', error);
-      alert('Failed to create activity. Please try again.');
+      alert(`Failed to ${editActivity ? 'update' : 'create'} activity. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -84,7 +121,7 @@ export default function ActivityModal({ isOpen, onClose, onSubmit, userId }: Act
     <div className="modal modal-open">
       <div className="modal-box max-w-2xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-2xl">Log New Activity</h3>
+          <h3 className="font-bold text-2xl">{editActivity ? 'Edit Activity' : 'Log New Activity'}</h3>
           <button
             onClick={onClose}
             className="btn btn-sm btn-circle btn-ghost"
@@ -212,10 +249,10 @@ export default function ActivityModal({ isOpen, onClose, onSubmit, userId }: Act
               {isSubmitting ? (
                 <>
                   <span className="loading loading-spinner loading-sm"></span>
-                  Creating...
+                  {editActivity ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
-                'Create Activity'
+                editActivity ? 'Update Activity' : 'Create Activity'
               )}
             </button>
           </div>
