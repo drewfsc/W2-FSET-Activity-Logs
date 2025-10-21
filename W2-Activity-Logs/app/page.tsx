@@ -139,7 +139,7 @@ export default function Home() {
               Track employment activities, manage client progress, and monitor outcomes for the W-2 program.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
               <div className="flex flex-col items-center text-center p-4 bg-base-200 rounded-lg">
                 <Briefcase className="h-10 w-10 text-primary mb-2" />
                 <h3 className="font-bold">Job Search</h3>
@@ -150,12 +150,6 @@ export default function Home() {
                 <Users className="h-10 w-10 text-primary mb-2" />
                 <h3 className="font-bold">Client Management</h3>
                 <p className="text-sm opacity-70">Monitor progress and outcomes</p>
-              </div>
-
-              <div className="flex flex-col items-center text-center p-4 bg-base-200 rounded-lg">
-                <BarChart3 className="h-10 w-10 text-primary mb-2" />
-                <h3 className="font-bold">Analytics</h3>
-                <p className="text-sm opacity-70">Comprehensive reports</p>
               </div>
             </div>
           </div>
