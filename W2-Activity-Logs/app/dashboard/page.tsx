@@ -243,26 +243,31 @@ export default function Dashboard() {
     setUsersPage(1); // Reset to first page when searching
   };
 
-  const handleCreateActivity = async (activityData: ActivityFormData) => {
+  const handleCreateActivity = async (activitiesData: ActivityFormData[]) => {
     try {
-      const response = await fetch('/api/activities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(activityData),
-      });
+      // Create multiple activities
+      const promises = activitiesData.map(activityData =>
+        fetch('/api/activities', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(activityData),
+        }).then(res => res.json())
+      );
 
-      const data = await response.json();
+      const results = await Promise.all(promises);
+      const failed = results.filter(r => !r.success);
 
-      if (data.success) {
-        // Refresh activities
-        fetchActivities();
-      } else {
-        throw new Error(data.error || 'Failed to create activity');
+      if (failed.length > 0) {
+        throw new Error(`Failed to create ${failed.length} activity(ies)`);
       }
+
+      // Refresh activities
+      fetchActivities();
+      setIsModalOpen(false);
     } catch (error) {
-      console.error('Error creating activity:', error);
+      console.error('Error creating activities:', error);
       throw error;
     }
   };

@@ -4,17 +4,24 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Briefcase, Calendar, Clock, Plus, Search, ArrowLeft, Edit, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Briefcase, Calendar, Clock, Plus, Search, ArrowLeft, Edit, Trash2, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, Table } from 'lucide-react';
 import ActivityModal from '@/components/ActivityModal';
+import CalendarView from '@/components/CalendarView';
+import { isDateEditable } from '@/utils/weekUtils';
+import { type LogType, LOG_COLORS, LOG_SHORT_NAMES, formatDuration } from '@/utils/logUtils';
 
 interface Activity {
   _id: string;
   userId: string;
-  activityType: string;
+  logType: LogType;
+  weekStart: string;
+  activityType?: string; // Optional for backward compatibility
   description: string;
   date: string;
+  startTime?: string;
+  endTime?: string;
   duration?: number;
-  status: string;
+  status?: string; // Optional for backward compatibility
   notes?: string;
   createdAt?: string;
 }
@@ -26,12 +33,13 @@ export default function ActivitiesPage() {
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'activityType' | 'status' | 'duration'>('date');
+  const [sortBy, setSortBy] = useState<'date' | 'duration'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [viewMode, setViewMode] = useState<'table' | 'calendar'>('calendar');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedLogType, setSelectedLogType] = useState<LogType | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -64,19 +72,8 @@ export default function ActivitiesPage() {
     if (searchTerm) {
       filtered = filtered.filter(activity =>
         activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activity.activityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
         activity.notes?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
-
-    // Filter by type
-    if (filterType !== 'all') {
-      filtered = filtered.filter(activity => activity.activityType === filterType);
-    }
-
-    // Filter by status
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(activity => activity.status === filterStatus);
     }
 
     // Sort
@@ -87,12 +84,6 @@ export default function ActivitiesPage() {
         case 'date':
           comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
           break;
-        case 'activityType':
-          comparison = a.activityType.localeCompare(b.activityType);
-          break;
-        case 'status':
-          comparison = a.status.localeCompare(b.status);
-          break;
         case 'duration':
           comparison = (a.duration || 0) - (b.duration || 0);
           break;
@@ -102,32 +93,28 @@ export default function ActivitiesPage() {
     });
 
     setFilteredActivities(filtered);
-  }, [searchTerm, filterType, filterStatus, activities, sortBy, sortOrder]);
+  }, [searchTerm, activities, sortBy, sortOrder]);
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'Job Application':
-      case 'Job Search':
-        return <Briefcase className="h-5 w-5" />;
-      case 'Interview':
-      case 'Meeting':
-        return <Calendar className="h-5 w-5" />;
-      default:
-        return <Clock className="h-5 w-5" />;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const badges: { [key: string]: string } = {
-      'Completed': 'badge-success',
-      'Pending': 'badge-warning',
-      'Cancelled': 'badge-error'
-    };
-    return badges[status] || 'badge-neutral';
-  };
 
   const handleEditClick = (activity: Activity) => {
+    const activityDate = new Date(activity.date);
+    if (!isDateEditable(activityDate)) {
+      alert('You can only edit activities from the current week and 2 previous weeks.');
+      return;
+    }
     setEditingActivity(activity);
+    setIsModalOpen(true);
+  };
+
+  const handleAddClick = (date?: Date, logType?: LogType) => {
+    const targetDate = date || new Date();
+    if (!isDateEditable(targetDate)) {
+      alert('You can only add activities for the current week and 2 previous weeks.');
+      return;
+    }
+    setSelectedDate(targetDate);
+    setSelectedLogType(logType || null);
+    setEditingActivity(null);
     setIsModalOpen(true);
   };
 
@@ -155,34 +142,52 @@ export default function ActivitiesPage() {
     }
   };
 
-  const handleSubmitActivity = async (activityData: any) => {
+  const handleSubmitActivity = async (activitiesData: any[]) => {
     try {
-      const url = editingActivity
-        ? `/api/activities/${editingActivity._id}`
-        : '/api/activities';
+      if (editingActivity) {
+        // Editing single activity
+        const response = await fetch(`/api/activities/${editingActivity._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(activitiesData[0]),
+        });
 
-      const method = editingActivity ? 'PUT' : 'POST';
+        const data = await response.json();
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(activityData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Refresh activities
-        fetchActivities();
-        setIsModalOpen(false);
-        setEditingActivity(null);
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to update activity');
+        }
       } else {
-        throw new Error(data.error || 'Failed to save activity');
+        // Creating multiple activities
+        const promises = activitiesData.map(activityData =>
+          fetch('/api/activities', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(activityData),
+          }).then(res => res.json())
+        );
+
+        const results = await Promise.all(promises);
+
+        const failed = results.filter(r => !r.success);
+        if (failed.length > 0) {
+          // Log detailed errors
+          console.error('Failed activities:', failed);
+          const errorMessages = failed.map(r => r.error).join(', ');
+          throw new Error(`Failed to create ${failed.length} activity(ies): ${errorMessages}`);
+        }
       }
+
+      // Refresh activities
+      fetchActivities();
+      setIsModalOpen(false);
+      setEditingActivity(null);
     } catch (error) {
-      console.error('Error saving activity:', error);
+      console.error('Error saving activities:', error);
       throw error;
     }
   };
@@ -190,9 +195,11 @@ export default function ActivitiesPage() {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditingActivity(null);
+    setSelectedDate(null);
+    setSelectedLogType(null);
   };
 
-  const handleSort = (column: 'date' | 'activityType' | 'status' | 'duration') => {
+  const handleSort = (column: 'date' | 'duration') => {
     if (sortBy === column) {
       // Toggle sort order if clicking same column
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -248,56 +255,50 @@ export default function ActivitiesPage() {
               View and manage your W-2 program activities
             </p>
           </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleAddClick()}
+              className="btn btn-primary"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              New Activity
+            </button>
+          </div>
         </div>
 
-        {/* Filters and Search */}
+        {/* View Toggle and Filters */}
         <div className="card bg-base-100 shadow-xl mb-6">
           <div className="card-body">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Search */}
-              <div className="form-control md:col-span-2">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search activities..."
-                    className="input input-bordered w-full pr-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <Search className="h-5 w-5 absolute right-3 top-1/2 -translate-y-1/2 opacity-50" />
-                </div>
-              </div>
-
-              {/* Type Filter */}
-              <div className="form-control">
-                <select
-                  className="select select-bordered w-full"
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
+            {/* View Toggle */}
+            <div className="flex justify-end mb-4">
+              <div className="btn-group">
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`btn btn-sm ${viewMode === 'table' ? 'btn-active' : ''}`}
                 >
-                  <option value="all">All Types</option>
-                  <option value="Job Search">Job Search</option>
-                  <option value="Job Application">Job Application</option>
-                  <option value="Interview">Interview</option>
-                  <option value="Job Training">Job Training</option>
-                  <option value="Work Hours">Work Hours</option>
-                  <option value="Meeting">Meeting</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="form-control">
-                <select
-                  className="select select-bordered w-full"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                  <Table className="h-4 w-4 mr-2" />
+                  Table View
+                </button>
+                <button
+                  onClick={() => setViewMode('calendar')}
+                  className={`btn btn-sm ${viewMode === 'calendar' ? 'btn-active' : ''}`}
                 >
-                  <option value="all">All Status</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Calendar View
+                </button>
+              </div>
+            </div>
+
+            <div className="form-control">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search activities..."
+                  className="input input-bordered w-full pr-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Search className="h-5 w-5 absolute right-3 top-1/2 -translate-y-1/2 opacity-50" />
               </div>
             </div>
 
@@ -308,10 +309,17 @@ export default function ActivitiesPage() {
           </div>
         </div>
 
-        {/* Activities Table */}
+        {/* Activities Display - Table or Calendar */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            {filteredActivities.length === 0 ? (
+            {viewMode === 'calendar' ? (
+              <CalendarView
+                activities={filteredActivities}
+                onEditClick={handleEditClick}
+                onDeleteClick={handleDeleteClick}
+                onAddClick={handleAddClick}
+              />
+            ) : filteredActivities.length === 0 ? (
               <div className="text-center py-12">
                 <Briefcase className="h-16 w-16 mx-auto opacity-30 mb-4" />
                 <h3 className="text-xl font-bold mb-2">No activities found</h3>
@@ -322,7 +330,7 @@ export default function ActivitiesPage() {
                 </p>
                 <div>
                   <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => handleAddClick()}
                     className="btn btn-primary"
                   >
                     <Plus className="h-5 w-5 mr-2" />
@@ -344,32 +352,15 @@ export default function ActivitiesPage() {
                           {getSortIcon('date')}
                         </div>
                       </th>
-                      <th
-                        className="cursor-pointer hover:bg-base-300 select-none"
-                        onClick={() => handleSort('activityType')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Activity Type
-                          {getSortIcon('activityType')}
-                        </div>
-                      </th>
+                      <th>Log Type</th>
                       <th>Description</th>
                       <th
                         className="cursor-pointer hover:bg-base-300 select-none"
                         onClick={() => handleSort('duration')}
                       >
                         <div className="flex items-center gap-2">
-                          Duration
+                          Time/Duration
                           {getSortIcon('duration')}
-                        </div>
-                      </th>
-                      <th
-                        className="cursor-pointer hover:bg-base-300 select-none"
-                        onClick={() => handleSort('status')}
-                      >
-                        <div className="flex items-center gap-2">
-                          Status
-                          {getSortIcon('status')}
                         </div>
                       </th>
                       <th>Actions</th>
@@ -385,10 +376,11 @@ export default function ActivitiesPage() {
                           </div>
                         </td>
                         <td>
-                          <div className="flex items-center gap-2">
-                            {getActivityIcon(activity.activityType)}
-                            <span className="font-medium">{activity.activityType}</span>
-                          </div>
+                          {activity.logType && (
+                            <span className={`badge ${LOG_COLORS[activity.logType]?.badge || 'badge-neutral'}`}>
+                              {LOG_SHORT_NAMES[activity.logType] || activity.logType}
+                            </span>
+                          )}
                         </td>
                         <td>
                           <div>
@@ -403,37 +395,48 @@ export default function ActivitiesPage() {
                           </div>
                         </td>
                         <td>
-                          {activity.duration ? (
+                          {activity.startTime && activity.endTime ? (
+                            <div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-4 w-4 opacity-50" />
+                                <span className="text-xs">{activity.startTime} - {activity.endTime}</span>
+                              </div>
+                              {activity.duration && (
+                                <div className="text-xs opacity-70">
+                                  {formatDuration(activity.duration)}
+                                </div>
+                              )}
+                            </div>
+                          ) : activity.duration ? (
                             <div className="flex items-center gap-1">
                               <Clock className="h-4 w-4 opacity-50" />
-                              {activity.duration} hrs
+                              {formatDuration(activity.duration)}
                             </div>
                           ) : (
                             <span className="opacity-50">-</span>
                           )}
                         </td>
                         <td>
-                          <span className={`badge ${getStatusBadge(activity.status)}`}>
-                            {activity.status}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEditClick(activity)}
-                              className="btn btn-xs btn-outline btn-primary"
-                              title="Edit activity"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteClick(activity._id)}
-                              className="btn btn-xs btn-outline btn-error"
-                              title="Delete activity"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
-                          </div>
+                          {isDateEditable(new Date(activity.date)) ? (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditClick(activity)}
+                                className="btn btn-xs btn-outline btn-primary"
+                                title="Edit activity"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(activity._id)}
+                                className="btn btn-xs btn-outline btn-error"
+                                title="Delete activity"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-xs opacity-50">Read-only</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -453,6 +456,8 @@ export default function ActivitiesPage() {
           onSubmit={handleSubmitActivity}
           userId={session.user.id || ''}
           editActivity={editingActivity}
+          initialDate={selectedDate}
+          initialLogType={selectedLogType}
         />
       )}
     </div>

@@ -10,11 +10,15 @@ export interface IActivityComment {
 
 export interface IActivity extends Document {
   userId: mongoose.Types.ObjectId;
-  activityType: 'Job Search' | 'Job Application' | 'Interview' | 'Job Training' | 'Work Hours' | 'Meeting' | 'Other';
+  logType: 'Self-Directed Employment Search Log' | 'W-2 Activity Log' | 'Work Experience Log';
+  weekStart: Date; // Sunday of the week this log belongs to
+  activityType?: 'Job Search' | 'Job Application' | 'Interview' | 'Job Training' | 'Work Hours' | 'Meeting' | 'Other'; // Optional for backward compatibility
   description: string;
   date: Date;
-  duration?: number; // in minutes
-  status: 'Pending' | 'Completed' | 'Cancelled';
+  startTime?: string; // Format: "HH:MM" (24-hour)
+  endTime?: string; // Format: "HH:MM" (24-hour)
+  duration?: number; // in minutes (auto-calculated from start/end time)
+  status?: 'Pending' | 'Completed' | 'Cancelled'; // Optional for backward compatibility
   notes?: string;
   attachments?: string[];
   comments?: IActivityComment[];
@@ -29,10 +33,20 @@ const ActivitySchema: Schema = new Schema(
       ref: 'AuthUser', // References user in AUTH_MONGODB (FSC database)
       required: true,
     },
+    logType: {
+      type: String,
+      enum: ['Self-Directed Employment Search Log', 'W-2 Activity Log', 'Work Experience Log'],
+      required: true,
+    },
+    weekStart: {
+      type: Date,
+      required: true,
+      index: true,
+    },
     activityType: {
       type: String,
       enum: ['Job Search', 'Job Application', 'Interview', 'Job Training', 'Work Hours', 'Meeting', 'Other'],
-      required: true,
+      required: false, // Optional for backward compatibility
     },
     description: {
       type: String,
@@ -44,6 +58,14 @@ const ActivitySchema: Schema = new Schema(
       required: true,
       default: Date.now,
     },
+    startTime: {
+      type: String,
+      match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+    },
+    endTime: {
+      type: String,
+      match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+    },
     duration: {
       type: Number,
       min: 0,
@@ -51,7 +73,7 @@ const ActivitySchema: Schema = new Schema(
     status: {
       type: String,
       enum: ['Pending', 'Completed', 'Cancelled'],
-      default: 'Pending',
+      required: false, // Optional for backward compatibility
     },
     notes: {
       type: String,
@@ -91,7 +113,7 @@ const ActivitySchema: Schema = new Schema(
 
 // Index for efficient querying
 ActivitySchema.index({ userId: 1, date: -1 });
-ActivitySchema.index({ status: 1 });
+ActivitySchema.index({ userId: 1, weekStart: 1, logType: 1 }); // For weekly log lookups
 
 const Activity: Model<IActivity> = mongoose.models.Activity || mongoose.model<IActivity>('Activity', ActivitySchema);
 

@@ -85,6 +85,21 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Validate required fields for new log-based system
+    if (!body.logType) {
+      return NextResponse.json(
+        { success: false, error: 'logType is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.weekStart) {
+      return NextResponse.json(
+        { success: false, error: 'weekStart is required' },
+        { status: 400 }
+      );
+    }
+
     // Ensure the activity is created for the authenticated user
     // (unless they're a coach/admin creating on behalf of someone)
     if (session.user.role === 'client') {
